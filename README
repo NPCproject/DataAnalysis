@@ -1,0 +1,22 @@
+Notes on Matlab Data Analysis scripts: 
+
+The code mainly does three things:  
+
+1. cropper: making aligned cropped stacks of images
+2. day0counter: GUI for counting NPCs and astrocytes at day 0
+3. stainedCellCounter: GUI for counting differentiated NPCs at day 0
+
+1. cropper takes in an image montage of form: 
+
+s#_w#_d#_ch#.tif
+
+and saves the resulting stack of cropped islands into a .mat file with name: sl#.mat 
+
+into the same path as the original image montage file. The stack of cropped images has the name: 
+
+sl#_w#_d#_stk
+
+2. day0counter opens a .mat file. Once opened the user can select a 
+sl#_w#_d#_stk file to be pulled into the image viewer. Before loading the image file, make sure to select the astrocyte types, if any. Once the image files are loaded, the selections are locked in.  If data has been previously collected for these images, you can load the previous data by checking the "load previous data?' box before loading the images. To input cell numbers, enter numbers into the field and toggle to the next field using Tab. Once the last number has been entered, press "Enter" to save the data into the GUI table. Once the entire stack has been processed or when the user needs a break in the process, the data can be saved into the corresponding .mat file (in the sl#_w#_data structure) by pressing the 'save' button. If a mistake has been made during data entry, you can undo the last move by pressing the 'undo' button. 
+
+3. stainedCellCounter works similarly to day0 counter. Information on this GUI will be updated once I finish the code. 
