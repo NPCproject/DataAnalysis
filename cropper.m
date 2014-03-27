@@ -38,8 +38,8 @@ a = input('Can you input first square coordinates (Y/N)? ', 's');
 
 if (a == 'y')||(a == 'Y')
     
-    midX=input('Please enter the x coordinate of the first square in pixels.');
-    midY=input('Please enter the y coordinate of the first square in pixels.');
+    midX=input('Please enter the x coordinate of the first square in pixels: ');
+    midY=input('Please enter the y coordinate of the first square in pixels: ');
 
 else
     
