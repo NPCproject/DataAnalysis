@@ -1,5 +1,5 @@
 
-function imstack = cropper()
+function [midX midY] = cropper()
 
 % This function takes in a montaged image and crops all of the patterned
 % islands into an aligned stack of squares of size sqLength. The original 
@@ -34,11 +34,13 @@ end
 % 1. Asking the user to enter it manually. 
 % 2. Crop an upper region for identification of first square
 
-a = input('Can you input first square coordinates (Y/N)? ');
+a = input('Can you input first square coordinates (Y/N)? ', 's');
 
-if (b==y)||(b==Y)
+if (a == 'y')||(a == 'Y')
+    
     midX=input('Please enter the x coordinate of the first square in pixels.');
     midY=input('Please enter the y coordinate of the first square in pixels.');
+
 else
     
     smallMontIm = montIm(1:3000,1:1000);
@@ -46,7 +48,7 @@ else
     display('Pick corners in a clockwise direction starting from top left');
     
     b='N';
-    while (b=='N')||(b=='n')
+    while (b == 'N')||(b == 'n')
         [x, y] = ginput(4);
         b = input('Are the points correct (Y/N)? ', 's');
     end
