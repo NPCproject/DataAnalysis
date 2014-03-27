@@ -30,20 +30,32 @@ if isequal(filename,0) || isequal(pathname,0)
        montIm = readim(strcat(pathname,filename), '');
 end
 
-% Crop an upper region for identification of first square
+% Determine the coordinates of the middle of the first square by: 
+% 1. Asking the user to enter it manually. 
+% 2. Crop an upper region for identification of first square
 
-smallMontIm = montIm(1:3000,1:1000);
-smallMontIm
-display('Pick corners in a clockwise direction starting from top left');
+a = input('Can you input first square coordinates (Y/N)? ');
 
-a='N';
-while (a=='N')|(a=='n')
-    [x, y] = ginput(4);
-    a = input('Are the points correct (Y/N)?', 's');
+if (b==y)||(b==Y)
+    midX=input('Please enter the x coordinate of the first square in pixels.');
+    midY=input('Please enter the y coordinate of the first square in pixels.');
+else
+    
+    smallMontIm = montIm(1:3000,1:1000);
+    smallMontIm
+    display('Pick corners in a clockwise direction starting from top left');
+    
+    b='N';
+    while (b=='N')||(b=='n')
+        [x, y] = ginput(4);
+        b = input('Are the points correct (Y/N)? ', 's');
+    end
+    
+    midX = round(mean(x));
+    midY = round(mean(y));
+    
 end
 
-midX = round(mean(x));
-midY = round(mean(y));
 
 % Populate list of x and y for centroids coordinates: 
 
