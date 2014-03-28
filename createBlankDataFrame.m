@@ -1,21 +1,8 @@
-function createBlankDataFrame(filename, pathname, matname)
-% Creates a blank data frame for slide#_well# if none does not already
-% exist
+function dataFrame = createBlankDataFrame()
 
-% First, check for existence of data frame
-load([pathname, matname]); % load the entire mat file
+%Creates a blank data frame
 
-nameFields = parsefilename(filename);
-dataFrameName = makeDataFrameName(filename);
-dataFrameExist = exist(dataFrameName);
-
-if dataFrameExist
-
-    display(['Data frame for ', nameFields{1}, ' and well ', nameFields{2}, ' already exists.']);
-
-else
-    
-    dataFrame = struct('numNPCs_d0', 0, ...
+dataFrame = struct('numNPCs_d0', 0, ...
         'numCortA_d0', 0, ...
         'numDeltaA_d0', 0, ...
         'numEfnA_d0', 0, ...
@@ -32,8 +19,3 @@ else
         'numGFAP', 0, ...
         'numDbl', 0, ...
         'numUnst', 0);
-    
-    eval([dataFrameName, '=dataFrame;']);
-    save([pathname, matname], dataFrameName, '-append');
-end
-

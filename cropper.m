@@ -83,7 +83,7 @@ end
 allMidX=round(allMidX);
 allMidY=round(allMidY);
 
-% Make Squares at each center coordinate and append to the image array
+% Make squares at each center coordinate and append to the image array
 
 imstack = newimar(numSq);
 for j = 1:numRows
@@ -93,15 +93,14 @@ for j = 1:numRows
     end
 end
 
-% Save image data and create data frame if necessary
-nameFields = parsefilename(filename); 
-matname = strcat(nameFields{1},'.mat');
-stkName = strcat(filename(1:end-4),'_stk');
-eval([stkName '= imstack;']); 
-save(strcat(pathname, matname),stkName, '-append'); % This overrides existing stk variables
+% Save image data into sl#_stks.mat file:
 
-% check to see if a data frame has already been created for this well
-createBlankDataFrame(filename, pathname, matname); 
+saveStk(imstack,filename,pathname);
+
+% Set up the data frame variable for this well. Sets up data mat file if
+% one does not already exist
+
+setupWellDataFrame(filename, pathname); 
 
 
 
