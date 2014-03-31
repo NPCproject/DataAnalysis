@@ -1,11 +1,17 @@
 function setupWellDataFrame(filename, pathname)
 
+% SETUPWELLDATAFRAME(filename, pathname)
+% 
 % This function creates a data frame for the well specified in the
-% filename, which has the format sl#_w#_d#_ch.tif. 
-
-% Parse the filename to figure out the name of the data frame variable we
-% will make for this well. The name of the data frame variable should be:
-% sl#_w#_data 
+% filename (sl#_w#_d#_ch.tif) and stores in the corresponding data mat file
+% (sl#.mat). 
+%
+% First, the function parses the filename to compose the name of the
+% data frame variable to make for this well(sl#_w#_data). Then it checks
+% for the existence of the data mat file for this slide. If the data mat
+% file does not exist, it creates the mat file and also saves the empty
+% data frame into the mat file. If the data mat file does exist, it loads
+% the file and creates an empty data frame if one does not already exist. 
 
 nameFields = parsefilename(filename);
 dataFrameName = makeDataFrameName(filename);

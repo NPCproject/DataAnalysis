@@ -1,8 +1,19 @@
 function sqIm=makesquare(midX,midY, sqLength, montIm)
-% This function returns a cropped square from montIm, whose dimension along
-% each side is sqLength, and whose centroid is at midX and midY. If the
+% 
+% MAKESQUARE returns a cropped square image
+%
+% sqIm = makesquare(midX,midY, sqLength, montIm)
+%
+% midX (integer):  x-coordinate of centroid of cropped area
+% midY (integer):  y-coordinate of centroid of cropped area
+% sqLength (integer): dimension of square being cropped
+% montIm (mxn matlab matrix): matlab array of montaged image 
+% 
+% This function returns a cropped square from montIm. The dimension of this
+% cropped image is sqLength, and the centroid is at midX and midY. If the
 % square coordinates exceed the size of montIm, then a blank square is
 % returned. 
+%
 
 ylimit = size(montIm, 1); %need to switch if using dipimage
 xlimit = size(montIm, 2);

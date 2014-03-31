@@ -1,7 +1,16 @@
 function saveStk(imstack, filename, pathname)
 
-% Saves the image stack into the appropriate stack mat file with name: 
-% sl#_stks.mat
+% SAVESTK(imstack,filename,pathname)
+%
+% Takes in a cropped image stack from the cropper() function and saves the
+% image stack into the appropriate stack mat file (sl#_stks.mat). The
+% stkname will be sl#_w#_d#_ch_stk (which is the original filename
+% concatenated with "_stk". 
+%
+% imstack (cell array) : cell array of sqLength sized cropped images
+% filename (string) : filename of montIm selected in cropper()
+% pathname (string) : pathname of montIm selected in cropper()
+%
 
 nameFields = parsefilename(filename); 
 matname = strcat(nameFields{1},'.mat');

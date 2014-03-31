@@ -1,18 +1,31 @@
 
 function [midX midY] = cropper(varargin)
 
-% The function then prompts the user for a montaged image and crops all of 
-% the patterned islands into an aligned stack of squares of size sqLength. 
-% The original xpitch and ypitch that had been calibrated for sl19_w1_d0 is 
-% 770.5, and 774.1. 
-%
-% The first argument is the x-coordinate of the centroid of the first
-% square. The second argument is the y-coordinate of the centroid of the
-% first square.
+% [MIDX MIDY] = CROPPER[midX midY]
 % 
-% For day 0 images and day 6 stained images, make sure to merge and
-% properly adjust the scaling of multichannel images before cropping. The
-% counters only display one image stack. 
+% This function produces a cropped stack from a montaged 8bit image, which
+% must be correctly rotated. A ui prompt will ask the user to select the
+% montaged image file. If the centroid position of the first square
+% is known (midX,midY), then it should be supplied as input into the
+% function. If the centroid position is not known, the user will be asked
+% to select the four corners of the first square. These coordinates will be
+% used to calculate the centroid. 
+%
+% The function crops all of the patterned islands into an aligned stack of
+% squares of size sqLength.
+%
+% hard-coded parameters: 
+% sqLength = 300;
+% numRows = 19;
+% numCols = 13;
+% numSq = numRows*numCols;
+% xpitch = 774.1; %switch for dipimage arrays
+% ypitch = 770.5;
+% 
+% The counter will save the stacks in a sl#_stks.mat file in the same
+% folder as the original montaged image. It will also create a data frame
+% for this particular well (sl#_well#_data) in the corresponding sl#.mat
+% file, if one does not already exist. 
 % 
 
 % Specify parameters
