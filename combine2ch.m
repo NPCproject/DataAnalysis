@@ -1,6 +1,10 @@
 function rgbim = combine2ch(TLim, FLim)
 
-% Combines a TL image and a FL image into a single RGB image. 
+% RGBIM = COMBINE2CH(TLim, FLim)
+%
+% Combines a grayscale TL image and a FL image into a single RGB image. The
+% FL image is placed into the green channel. Both TLim and FLim should be
+% intensity images (scaled 0 to 1). 
 
 if size(TLim)==size(FLim)
 
