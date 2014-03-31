@@ -4,11 +4,9 @@ function varargout = day0counter(varargin)
 %   This simple program allows the user to quickly input the number of
 %   cells at each slice in a stack, which is shown iteratively to the user
 %   until the end of the stack is reached. Once the end of the stack has
-%   been reached, the data can be saved into the cognate .mat file using
+%   been reached, the data can be saved into the corresponding .mat file using
 %   the save button. The program loads only one image file, so make sure
 %   multichannel images are merged. 
-%
-%   
 %
 %      DAY0COUNTER, by itself, creates a new DAY0COUNTER or raises the existing
 %      singleton*.
@@ -32,7 +30,7 @@ function varargout = day0counter(varargin)
 
 % Edit the above text to modify the response to help day0counter
 
-% Last Modified by GUIDE v2.5 21-Mar-2014 17:12:19
+% Last Modified by GUIDE v2.5 28-Mar-2014 11:49:53
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -119,7 +117,8 @@ for i=1:size(varlist,1)
     end
 end
 
-set(handles.d0stk_select, 'String', d0stks);
+set(handles.TLstk_select, 'String', d0stks);
+set(handles.FLstk_select, 'String', ['None', d0stks]);
 
 guidata(hObject, handles);
 
@@ -129,19 +128,42 @@ function Open_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Load current stk data frame into handles.imstack variable. 
+% Load image stacks into handles.TLimstack, handles.TLimstackname,
+% handles.FLimstack, and handles.FLimstackname.
+
 load([handles.pathname, handles.matname]);
-index = get(handles.d0stk_select, 'Value');
-imstacks = get(handles.d0stk_select, 'String');
-imStackName = imstacks{index};
-imStack = eval(imStackName);
-imStack = dip_array(imStack); %convert to Matlab image array
-handles.imstack=imStack;
-handles.imstackname = imStackName;
+TLindex = get(handles.TLstk_select, 'Value');
+TLimStacks = get(handles.TLstk_select, 'String');
+TLimStackName = TLimStacks{TLindex};
+TLimStack = eval(TLimStackName);
+%TLimStack = dip_array(TLimStack); %convert to Matlab image array
+handles.TLimStack=TLimStack;
+handles.TLimStackName = TLimStackName;
+ 
+FLindex = get(handles.FLstk_select, 'Value');
+FLimStacks = get(handles.FLstk_select, 'String');
+FLimStackName = FLimStacks{FLindex};
+
+if strcmp(FLimStackName,'None')
+    handles.FLimStack=0;
+    handles.FLimStackName = FLimStackName;
+else
+    FLimStack = eval(FLimStackName);
+    %FLimStack = dip_array(FLimStack); %convert to Matlab image array
+    handles.FLimStack=FLimStack;
+    handles.FLimStackName = FLimStackName;
+end
+
 
 % initializes variables in handles structure 
-handles.totalnum = size(handles.imstack, 3);
+FLimstacksize = size(handles.FLimStack,1);
+TLimstacksize = size(handles.TLimStack,1);
 
+if FLimstacksize ~= TLimstacksize
+    error('The two stack sizes do not match');
+end
+
+handles.totalnum = FLimstacksize;
 type1AstrIndex = get(handles.type1AstrSelect, 'Value');
 type1AstrName = handles.AstrNameList{type1AstrIndex};
 type2AstrIndex = get(handles.type2AstrSelect, 'Value');
@@ -179,13 +201,13 @@ if get(handles.load_prev, 'Value')
     handles = guidata(hObject); %retrieve data from loadTableData
     
     % load appropriate images into current window
-    plotpictures(handles);
+    handles = plotpictures(handles);
     handles.stkloaded = 1;
     
 else %nothing has yet been processed
     handles.n = 1;
     set(handles.uitable1,'Data',[]);
-    plotpictures(handles);
+    handles = plotpictures(handles);
     handles.stkloaded = 1;
 end
 
@@ -366,7 +388,7 @@ else
    n = handles.n;
    
    % roll displayed image back by 1
-   plotpictures(handles);
+   handles = plotpictures(handles);
    
    % roll data in uitable1 back by 1
    tabledata = get(handles.uitable1, 'Data');
@@ -441,29 +463,30 @@ save([handles.pathname,handles.matname], dataFrameName, '-append');
 % Save the sl#_w#_data structure into the .mat file
 
 
-function plotpictures(handles)
+function outputhandles=plotpictures(handles)
 
 n = handles.n;
 
 %plot previous pictures in prev axes if n>1
 if n > 1
     
-    prevIm = handles.imstack(:,:,n-1);
-    high = double(max(max(prevIm)));
-    low = double(min(min(prevIm)));
-    
-    prevIm = mat2gray(prevIm, [low high]);
+     prevIm = handles.currIm;
+%     high = double(max(max(prevIm)));
+%     low = double(min(min(prevIm)));
     imshow(prevIm, 'Parent', eval('handles.prev_axes1'));
 end
     
 %plot current pictures in axes
 
-currIm = handles.imstack(:,:,n);
-high = double(max(max(currIm)));
-low = double(min(min(currIm)));
+currIm = combine2ch(handles.TLimStack{n}, handles.FLimStack{n});
+% high = double(max(max(currIm)));
+% low = double(min(min(currIm)));
 
-currIm = mat2gray(currIm, [low high]);
+%currIm = mat2gray(currIm, [low high]);
 imshow(currIm, 'Parent', eval('handles.axes1'));
+
+handles.currIm = currIm;
+outputhandles = handles;
 
 
 % --- Saves inputted data into table
@@ -508,11 +531,10 @@ if handles.n <= handles.totalnum
             handles.n = handles.n + 1;
             set(handles.slicenum, 'String', num2str(handles.n)); %update slice label
             
-            
             if handles.n <= handles.totalnum
                 
-                plotpictures(handles);
-                
+                handles=plotpictures(handles);
+
             else
                 display('No more pictures!');
             end
@@ -610,19 +632,41 @@ function load_prev_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of load_prev
 
-% --- Executes on selection change in d0stk_select.
-function d0stk_select_Callback(hObject, eventdata, handles)
-% hObject    handle to d0stk_select (see GCBO)
+% --- Executes on selection change in TLstk_select.
+function TLstk_select_Callback(hObject, eventdata, handles)
+% hObject    handle to TLstk_select (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: contents = cellstr(get(hObject,'String')) returns d0stk_select contents as cell array
+% Hints: contents = cellstr(get(hObject,'String')) returns TLstk_select contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from
-%        d0stk_select
+%        TLstk_select
 
 % --- Executes during object creation, after setting all properties.
-function d0stk_select_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to d0stk_select (see GCBO)
+function TLstk_select_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to TLstk_select (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+% --- Executes on selection change in FLstk_select.
+function FLstk_select_Callback(hObject, eventdata, handles)
+% hObject    handle to FLstk_select (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns FLstk_select contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from
+%        FLstk_select
+
+% --- Executes during object creation, after setting all properties.
+function FLstk_select_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to FLstk_select (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
