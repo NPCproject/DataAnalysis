@@ -1,0 +1,111 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1187\cocoasubrtf400
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+\margl1440\margr1440\vieww19960\viewh15220\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\f0\b\fs24 \cf0 Notes on Matlab Data Analysis scripts: \
+
+\b0 \
+The code mainly does three things:  \
+\
+1. cropper: making aligned cropped stacks of images\
+2. day0counter: GUI for counting NPCs and astrocytes at day 0\
+3. stainedCellCounter: GUI for counting differentiated NPCs at day 0\
+\
+1. cropper takes in an image montage of form: \
+\
+s#_w#_d#_ch#.tif\
+\
+and saves the resulting stack of cropped islands into a .mat file with name: sl#_stks.mat. Within this mat file, each stk variable has the name sl#_w#_d#_ch_stk. Each stk variable is a cell array of sqLength x sqLength images. For the 13x9 array of patterns in each well of our slide, this cell array should contain 247 images. \
+\
+2. day0counter opens a .mat file. Once opened the user can select a sl#_w#_d#_stk file to be pulled into the image viewer. Before loading the image file, make sure to select the astrocyte types, if any. Once the image files are loaded, the selections are locked in.  If data has been previously collected for these images, you can load the previous data by checking the "load previous data?' box before loading the images. To input cell numbers, enter numbers into the field and toggle to the next field using Tab. Once the last number has been entered, press "Enter" to save the data into the GUI table. Once the entire stack has been processed or when the user needs a break in the process, the data can be saved into the corresponding .mat file (in the sl#_w#_data structure) by pressing the 'save' button. If a mistake has been made during data entry, you can undo the last move by pressing the 'undo' button. \
+\
+3. stainedCellCounter works similarly to day0 counter. Information on this GUI will be updated once I finish the code. \
+\
+\
+
+\b \ul Naming Conventions: 
+\b0 \ulnone \
+\
+
+\b <1> Plates 
+\b0 \
+\
+
+\i [Date of acquisition] [sl #] [DNA] [cell type 1] [cell type 2] [cell type 3] [day #] [Ch (if necessary]
+\i0 \
+\
+\
+2014-03-12 sl22 DNA NPC CortA d0 TL\
+\
+\
+
+\b <2> Montages
+\b0 \
+\
+\
+
+\i [sl #]_[well #]_[day #]_[ch]
+\i0 \
+\
+\
+sl22_w1_d0_TL\
+\
+\
+
+\b <3> Stacks
+\b0 \
+\
+\
+
+\i [sl #]_[well #]_[day #]_[ch]_stk
+\i0 \
+\
+\
+sl22_w1_d0_TL_stk\
+\
+\
+\
+
+\b <4> Stack mat file
+\b0 \
+\
+\
+
+\i [sl #]_stks.mat
+\i0 \
+\
+\
+sl22_stks.mat\
+\
+\
+\
+
+\b <5> Data mat file
+\b0 \
+\
+\
+
+\i [sl #].mat
+\i0 \
+\
+\
+sl22.mat\
+\
+\
+\
+
+\b \ul List of channel types: 
+\b0 \ulnone \
+\
+   * TL\
+   * FITC\
+   * Cy3\
+   * YFP\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+\cf0    * TxRed\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+\cf0    * Cy5\
+\
+}
