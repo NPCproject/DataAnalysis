@@ -33,8 +33,8 @@ sqLength = 300;
 numRows = 19;
 numCols = 13;
 numSq = numRows*numCols;
-xpitch = 774.1; %switch for dipimage arrays
-ypitch = 770.5;
+xpitch = 770.5; %switch for dipimage arrays
+ypitch = 773.1;
 
 % Ask user to select the file: 
 
@@ -45,17 +45,17 @@ if isequal(filename,0) || isequal(pathname,0)
     else
        disp(['User selected ', fullfile(pathname, filename)])
        montIm = imread([pathname,filename], 'tif');
+       montIm = mat2gray(montIm);
 end
 
 % Determine the coordinates of the middle of the first square by: 
 % 1. Asking the user to enter it manually. 
 % 2. Crop an upper region for identification of first square
 
-a = nargin;
-
 if nargin<2 %if insufficient number of arguments
     
-    smallMontIm = montIm(1:3000,1:1000);
+    smallMontIm = montIm(1:1000,1:3000);
+    figure;imshow(mat2gray(smallMontIm));
     display('Pick corners in a clockwise direction starting from top left');
     
     b='N';
@@ -78,25 +78,24 @@ else
    
 end
 
-
 % Populate list of x and y for centroids coordinates: 
 
-allMidX = zeros(1, numRows); %all column coordinates
-allMidY = zeros(1, numCols); %all row coordinates
-
-for i=1:numRows
-    if i==1
-        allMidX(i)=midX;
-    else
-        allMidX(i)=allMidX(i-1) + xpitch;
-    end
-end
+allMidX = zeros(1, numCols); %all row coordinates
+allMidY = zeros(1, numRows); %all column coordinates
 
 for j=1:numCols
     if j==1
-        allMidY(j)=midY;
+        allMidX(j) = midX;
     else
-        allMidY(j)= allMidY(j-1) + ypitch;
+        allMidX(j) = allMidX(j-1) + xpitch;
+    end
+end
+
+for i=1:numRows
+    if i==1
+        allMidY(i)=midY;
+    else
+        allMidY(i)=allMidY(i-1) + ypitch;
     end
 end
 
@@ -108,8 +107,8 @@ allMidY=round(allMidY);
 imstack = cell(numSq,1);
 for i = 1:numRows %need to switch if using dipImage
     for j = 1:numCols
-        currSq = makesquare(allMidX(i), allMidY(j), sqLength, montIm);        
-        imstack{i+numCols*(j-1)} = currSq;
+        currSq = makesquare(allMidX(j), allMidY(i), sqLength, montIm);        
+        imstack{j+numCols*(i-1)} = currSq;
     end
 end
 

@@ -15,18 +15,19 @@ function sqIm=makesquare(midX,midY, sqLength, montIm)
 % returned. 
 %
 
-ylimit = size(montIm, 1); %need to switch if using dipimage
+ylimit = size(montIm, 1); % need to switch if using dipimage
 xlimit = size(montIm, 2);
 
 halfSqLength=sqLength/2;
 
 leftX = midX - halfSqLength;
-rightX = midX + halfSqLength - 1; % -1 to keep the size at (sqLength,sqLength)
+rightX = midX + halfSqLength - 1; % - 1 to keep the size at (sqLength,sqLength)
 upY = midY - halfSqLength;
 downY = midY + halfSqLength - 1; % - 1 to keep the size at (sqLength,sqLength)
 
 if (rightX>xlimit)||(downY>ylimit)
     sqIm=zeros(sqLength,sqLength);
+    sqIm=double(sqIm);
 else
     sqIm = montIm(upY:downY,leftX:rightX); %need to change orientation if using dipimage
 end
