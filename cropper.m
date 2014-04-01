@@ -55,7 +55,8 @@ end
 if nargin<2 %if insufficient number of arguments
     
     smallMontIm = montIm(1:1000,1:3000);
-    figure;imshow(mat2gray(smallMontIm));
+    figure;
+    h = imshow(mat2gray(smallMontIm));
     display('Pick corners in a clockwise direction starting from top left');
     
     b='N';
@@ -63,6 +64,8 @@ if nargin<2 %if insufficient number of arguments
         [x, y] = ginput(4);
         b = input('Are the points correct (Y/N)? ', 's');
     end
+    
+    close(h);
     
     midX = round(mean(x));
     midY = round(mean(y));
