@@ -133,31 +133,31 @@ function Open_Callback(hObject, eventdata, handles)
 
 load([handles.pathname, handles.matname]);
 TLindex = get(handles.TLstk_select, 'Value');
-TLimStacks = get(handles.TLstk_select, 'String');
-TLimStackName = TLimStacks{TLindex};
-TLimStack = eval(TLimStackName);
-%TLimStack = dip_array(TLimStack); %convert to Matlab image array
-handles.TLimStack=TLimStack;
-handles.TLimStackName = TLimStackName;
+TLimstacks = get(handles.TLstk_select, 'String');
+TLimstackName = TLimstacks{TLindex};
+TLimstack = eval(TLimstackName);
+%TLimstack = dip_array(TLimstack); %convert to Matlab image array
+handles.TLimstack=TLimstack;
+handles.TLimstackName = TLimstackName;
  
 FLindex = get(handles.FLstk_select, 'Value');
-FLimStacks = get(handles.FLstk_select, 'String');
-FLimStackName = FLimStacks{FLindex};
+FLimstacks = get(handles.FLstk_select, 'String');
+FLimstackName = FLimstacks{FLindex};
 
-if strcmp(FLimStackName,'None')
-    handles.FLimStack=0;
-    handles.FLimStackName = FLimStackName;
+if strcmp(FLimstackName,'None')
+    handles.FLimstack=0;
+    handles.FLimstackName = FLimstackName;
 else
-    FLimStack = eval(FLimStackName);
-    %FLimStack = dip_array(FLimStack); %convert to Matlab image array
-    handles.FLimStack=FLimStack;
-    handles.FLimStackName = FLimStackName;
+    FLimstack = eval(FLimstackName);
+    %FLimstack = dip_array(FLimstack); %convert to Matlab image array
+    handles.FLimstack=FLimstack;
+    handles.FLimstackName = FLimstackName;
 end
 
 
 % initializes variables in handles structure 
-FLimstacksize = size(handles.FLimStack,1);
-TLimstacksize = size(handles.TLimStack,1);
+FLimstacksize = size(handles.FLimstack,1);
+TLimstacksize = size(handles.TLimstack,1);
 
 if FLimstacksize ~= TLimstacksize
     error('The two stack sizes do not match');
@@ -196,7 +196,7 @@ end
 
 if get(handles.load_prev, 'Value')
     
-    dataFrame = eval(makeDataFrameName(imStackName));
+    dataFrame = eval(makeDataFrameName(TLimstackName));
     loadTableData(dataFrame, hObject, handles);
     handles = guidata(hObject); %retrieve data from loadTableData
     
@@ -262,6 +262,7 @@ function NPCnum_KeyPressFcn(hObject, eventdata, handles)
 if (handles.numtypes==1)&(strcmp(eventdata.Key,'return'))
     updateTable(hObject, handles);
     set(handles.type2AstrNum, 'String', '');
+    uicontrol(handles.NPCnum);
 end
 
 % --- Executes on key press with focus on type1AstrNum and none of its controls.
@@ -276,6 +277,7 @@ function type1AstrNum_KeyPressFcn(hObject, eventdata, handles)
 if (handles.numtypes==2)&(strcmp(eventdata.Key,'return'))    
     updateTable(hObject, handles);
     set(handles.type2AstrNum, 'String', '');
+    uicontrol(handles.NPCnum);
 end
 
 % --- Executes on key press with focus on type2AstrNum and none of its controls.
@@ -291,6 +293,7 @@ function type2AstrNum_KeyPressFcn(hObject, eventdata, handles)
 if (handles.numtypes==3)&(strcmp(eventdata.Key,'return'))
     updateTable(hObject, handles);
     set(handles.type2AstrNum, 'String', '');
+    uicontrol(handles.NPCnum);
 end
 
 % --- Sets data frame data into uitable
@@ -413,7 +416,7 @@ numtypes = handles.numtypes;
 % Parse the matlab table data into different vectors & save into sl#_w#
 % data structure
 
-dataFrameName = makeDataFrameName(handles.imstackname);
+dataFrameName = makeDataFrameName(handles.TLimstackName);
 load([handles.pathname, handles.matname], dataFrameName);
 
 switch numtypes
@@ -478,7 +481,7 @@ end
     
 %plot current pictures in axes
 
-currIm = combine2ch(handles.TLimStack{n}, handles.FLimStack{n});
+currIm = combine2ch(handles.TLimstack{n}, handles.FLimstack{n});
 % high = double(max(max(currIm)));
 % low = double(min(min(currIm)));
 
