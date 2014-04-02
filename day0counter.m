@@ -93,8 +93,9 @@ function loadmat_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-[matname, pathname, filterindex] = uigetfile('.mat', 'Please select .mat file that contains d0 data', 'MultiSelect', 'Off');
-handles.matname = matname; 
+[stksmatname, pathname, filterindex] = uigetfile('.mat', 'Please select .mat file that contains d0 stks data', 'MultiSelect', 'Off');
+handles.stksmatname = stksmatname; 
+handles.matname = makeMatName(stksmatname);
 handles.pathname = pathname;
 
 % Once a new mat file has been selected, the number of cell types is set to
@@ -106,7 +107,7 @@ handles.numtypes = 0;
 % List d0 data variables in local environment. Using reexp, find all
 % variables that are of the form d0.*_stk
 
-load(strcat(pathname, matname));
+load(strcat(pathname, stksmatname));
 varlist = who;
 d0stkIndices = regexp(varlist,'d0.*_stk');
 d0stks = cell(0);
@@ -131,7 +132,7 @@ function Open_Callback(hObject, eventdata, handles)
 % Load image stacks into handles.TLimstack, handles.TLimstackname,
 % handles.FLimstack, and handles.FLimstackname.
 
-load([handles.pathname, handles.matname]);
+load([handles.pathname, handles.stksmatname]);
 TLindex = get(handles.TLstk_select, 'Value');
 TLimstacks = get(handles.TLstk_select, 'String');
 TLimstackName = TLimstacks{TLindex};
@@ -139,6 +140,7 @@ TLimstack = eval(TLimstackName);
 %TLimstack = dip_array(TLimstack); %convert to Matlab image array
 handles.TLimstack=TLimstack;
 handles.TLimstackName = TLimstackName;
+TLimstacksize = size(handles.TLimstack,1);
  
 FLindex = get(handles.FLstk_select, 'Value');
 FLimstacks = get(handles.FLstk_select, 'String');
@@ -152,18 +154,17 @@ else
     %FLimstack = dip_array(FLimstack); %convert to Matlab image array
     handles.FLimstack=FLimstack;
     handles.FLimstackName = FLimstackName;
+    FLimstacksize = size(handles.FLimstack,1);
+    
+    if FLimstacksize ~= TLimstacksize
+        error('The two stack sizes do not match');
+    end
+    
 end
-
 
 % initializes variables in handles structure 
-FLimstacksize = size(handles.FLimstack,1);
-TLimstacksize = size(handles.TLimstack,1);
 
-if FLimstacksize ~= TLimstacksize
-    error('The two stack sizes do not match');
-end
-
-handles.totalnum = FLimstacksize;
+handles.totalnum = TLimstacksize; %should always have a TL image
 type1AstrIndex = get(handles.type1AstrSelect, 'Value');
 type1AstrName = handles.AstrNameList{type1AstrIndex};
 type2AstrIndex = get(handles.type2AstrSelect, 'Value');
@@ -174,7 +175,7 @@ handles.AstrIndices={type1AstrIndex, type2AstrIndex};
 % Assume that the list of options has not changed: 
 % {'None', 'CortA', 'Delta CortA', 'Efn CortA', 'Wnt CortA'}
 
-if (type1AstrIndex==1)&(type2AstrIndex~=1)
+if (type1AstrIndex==1)&&(type2AstrIndex~=1)
     display('Please move Astrocyte selection to the first popup menu and press Load again');
     handles.numtypes = 0;
     
@@ -196,11 +197,15 @@ end
 
 if get(handles.load_prev, 'Value')
     
+    load([handles.pathname, handles.matname]); % reload data mat file
     dataFrame = eval(makeDataFrameName(TLimstackName));
     loadTableData(dataFrame, hObject, handles);
     handles = guidata(hObject); %retrieve data from loadTableData
     
+    % set currIm first: 
+    
     % load appropriate images into current window
+    
     handles = plotpictures(handles);
     handles.stkloaded = 1;
     
@@ -307,63 +312,54 @@ function loadTableData(dataFrame, hObject, handles)
 numtypes = handles.numtypes;
 
 % Pull out the relevant data vectors out of the data structure
+if numtypes==0
+    error(['Number of cell types not set'])
+end
 
-switch numtypes
-    case 1    
-        
-        NPCData = dataFrame.numNPCs_d0;
-        
-        if isscalar(NPCData)
-            tabledata=[];
-            set(handles.uitable1,'Data',tabledata);
-        else
-            tabledata = NPCData'; %NPC data is horizontal vector
-            set(handles.uitable1,'Data', flipud(tabledata));
-        end
-        
-    case 2
-        
-        NPCData = dataFrame.numNPCs_d0;
-        
-        type1Index = handles.AstrIndices{1};
-        type1AstrName = handles.AstrNameList{type1Index}; 
-        d0type1AstrDataName = ['num' type1AstrName '_d0'];
-        d0type1AstrData = getfield(dataFrame, d0type1AstrDataName);
-      
-        if isscalar(NPCData) || isscalar(d0type1AstrData) || ~isequal(NPCData, d0type1AstrData)
-            tabledata=[];
-            set(handles.uitable1,'Data',tabledata);
-        else
-            isequal(NPCData, d0type1AstrData) && (NPCData~=0) && (d0type1AstrData~=0)
-            tabledata = [NPCData' d0type1AstrData']; 
-            set(handles.uitable1,'Data', flipud(tabledata));
-        end
-        
-    case 3
-        
-        NPCData = dataFrame.numNPCs_d0;
-
-        type1Index = handles.AstrIndices{1};
-        type1AstrName = handles.AstrNameList{type1Index}; 
-        d0type1AstrDataName = ['num' type1AstrName '_d0'];
-        d0type1AstrData = getfield(dataFrame, d0type1AstrDataName);
-        
-        type2Index = handles.AstrIndices{2};
-        type2AstrName = handles.AstrNameList{type2Index}; 
-        d0type2AstrDataName = ['num' type2AstrName '_d0'];
-        d0type2AstrData = getfield(dataFrame, d0type2AstrDataName);
-        
-        if isscalar(NPCData) || isscalar(d0type1AstrData) || isscalar(d0type2AstrData) || ~isequal(NPCData, d0type1AstrData, d0type2AstrData)
-            tabledata=[];
-            set(handles.uitable1,'Data',tabledata);
-        else
-            tabledata = [NPCData' d0type1AstrData' d0type2AstrData']; 
-            set(handles.uitable1,'Data', flipud(tabledata));
-        end
+if numtypes>=1
     
-    otherwise
-        
-        error(['Number of cell types not set'])
+    NPCData = dataFrame.numNPCs_d0;
+    
+    if isscalar(NPCData) % i.e. if no data has been entered yet
+        tabledata=[];
+        set(handles.uitable1,'Data',tabledata);
+    else
+        tabledata = NPCData'; % NPC data is horizontal vector
+        set(handles.uitable1,'Data', flipud(tabledata));
+    end
+
+end
+
+if numtypes>=2
+    
+    type1Index = handles.AstrIndices{1};
+    type1AstrName = handles.AstrNameList{type1Index};
+    d0type1AstrDataName = ['num' type1AstrName '_d0'];
+    d0type1AstrData = getfield(dataFrame, d0type1AstrDataName);
+    
+    if isscalar(d0type1AstrData) || ~isequal(size(NPCData), size(d0type1AstrData))
+        tabledata=[];
+        set(handles.uitable1, 'Data', tabledata);
+    else
+        tabledata = [tabledata d0type1AstrData']; %append d0type1AstrData to tabledata
+        set(handles.uitable1,'Data', flipud(tabledata));
+    end
+end
+
+if numtypes>=3
+    
+    type2Index = handles.AstrIndices{2};
+    type2AstrName = handles.AstrNameList{type2Index};
+    d0type2AstrDataName = ['num' type2AstrName '_d0'];
+    d0type2AstrData = getfield(dataFrame, d0type2AstrDataName);
+    
+    if isscalar(d0type2AstrData) || ~isequal(size(NPCData), size(d0type1AstrData), size(d0type2AstrData))
+        tabledata=[];
+        set(handles.uitable1,'Data',tabledata);
+    else
+        tabledata = [tabledata d0type2AstrData']; %append d0type2AstrData to tabledata
+        set(handles.uitable1,'Data', flipud(tabledata));
+    end
 end
 
 % set n = size of data
@@ -473,22 +469,25 @@ n = handles.n;
 %plot previous pictures in prev axes if n>1
 if n > 1
     
-     prevIm = handles.currIm;
-%     high = double(max(max(prevIm)));
-%     low = double(min(min(prevIm)));
-    imshow(prevIm, 'Parent', eval('handles.prev_axes1'));
-end
+    if strcmp(handles.FLimstackName,'None')
+        prevIm=handles.TLimstack{n-1};
+    else
+        prevIm = combine2ch(handles.TLimstack{n-1}, handles.FLimstack{n-1});
+    end
     
+    imshow(prevIm, 'Parent', eval('handles.prev_axes1'));
+    
+end
+
 %plot current pictures in axes
 
-currIm = combine2ch(handles.TLimstack{n}, handles.FLimstack{n});
-% high = double(max(max(currIm)));
-% low = double(min(min(currIm)));
+if strcmp(handles.FLimstackName,'None')
+    currIm=handles.TLimstack{n};
+else
+    currIm = combine2ch(handles.TLimstack{n}, handles.FLimstack{n});
+end
 
-%currIm = mat2gray(currIm, [low high]);
 imshow(currIm, 'Parent', eval('handles.axes1'));
-
-handles.currIm = currIm;
 outputhandles = handles;
 
 
