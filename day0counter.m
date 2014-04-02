@@ -337,7 +337,7 @@ if numtypes>=2
     d0type1AstrDataName = ['num' type1AstrName '_d0'];
     d0type1AstrData = getfield(dataFrame, d0type1AstrDataName);
     
-    if isscalar(d0type1AstrData) || ~isequal(size(NPCData), size(d0type1AstrData))
+    if isscalar(d0type1AstrData) || ~fieldSizeParity(dataFrame, 'numNPCs_d0', d0type1AstrDataName)
         tabledata=[];
         set(handles.uitable1, 'Data', tabledata);
     else
@@ -353,7 +353,7 @@ if numtypes>=3
     d0type2AstrDataName = ['num' type2AstrName '_d0'];
     d0type2AstrData = getfield(dataFrame, d0type2AstrDataName);
     
-    if isscalar(d0type2AstrData) || ~isequal(size(NPCData), size(d0type1AstrData), size(d0type2AstrData))
+    if isscalar(d0type2AstrData) || ~fieldSizeParity(dataFrame, 'numNPCs_d0', d0type1AstrDataName, d0type2AstrDataName)
         tabledata=[];
         set(handles.uitable1,'Data',tabledata);
     else
