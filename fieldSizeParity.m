@@ -9,7 +9,7 @@ function x = fieldSizeParity(dataFrame, varargin)
 % varargin (cell array) : strings that specify the fields in dataFrame
 % x (bool): returns true if all fields are the same size. 
 
-sizearray=cell(nargin-1,1);
+sizearray=cell(1, nargin-1);
 
 for i=1:(nargin-1)
     
@@ -18,6 +18,6 @@ for i=1:(nargin-1)
     
 end
 
-sizearrayoffset = {sizearray{2:end}, sizearray{1}}; % shift the array by one cell
+sizearrayoffset = {sizearray{2:(nargin-1)}, sizearray{1}}; % shift the array by one cell
     
 x = isequal(sizearray, sizearrayoffset); % if all cells are the same value, this returns true
