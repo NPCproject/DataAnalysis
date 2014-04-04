@@ -11,8 +11,10 @@ function sqIm=makesquare(midX,midY, sqLength, montIm)
 % 
 % This function returns a cropped square from montIm. The dimension of this
 % cropped image is sqLength, and the centroid is at midX and midY. If the
-% square coordinates exceed the size of montIm, then a blank square is
-% returned. 
+% square coordinates completely exceed the size of montIm, then a blank
+% square is returned. However, if only one dimension of the square exceeds
+% the size of montIm, the rest of the cropped image is filled in with black
+% pixels (value = 0)
 %
 
 ylimit = size(montIm, 1); % need to switch if using dipimage
@@ -38,6 +40,7 @@ else
         missingcols = sqLength - size(sqIm,2);
         zeroCols = zeros(sqLength,missingcols);
         
+        % combine sqIm with zero matrix
         sqIm=[sqIm, zeroCols];
         
     elseif leftX<1
@@ -50,6 +53,7 @@ else
         missingcols = sqLength - size(sqIm,2);
         zeroCols = zeros(sqLength,missingcols);
         
+        % combine sqIm with zero matrix
         sqIm=[zeroCols, sqIm];
     
     elseif upY < 1
