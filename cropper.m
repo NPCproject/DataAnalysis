@@ -1,7 +1,7 @@
 
 function [midX midY] = cropper(varargin)
 
-% [MIDX MIDY] = CROPPER[midX midY]
+% [MIDX MIDY] = CROPPER[midX midY filename pathname]
 % 
 % This function produces a cropped stack from a montaged 8bit image, which
 % must be correctly rotated. A ui prompt will ask the user to select the
@@ -27,6 +27,7 @@ function [midX midY] = cropper(varargin)
 % for this particular well (sl#_well#_data) in the corresponding sl#.mat
 % file, if one does not already exist. 
 % 
+% 
 
 % Specify parameters
 sqLength = 300;
@@ -38,15 +39,22 @@ ypitch = 773.1;
 
 % Ask user to select the file: 
 
-[filename, pathname] = uigetfile('.tif', 'Select the montaged image');
-if isequal(filename,0) || isequal(pathname,0)
+if nargin==4
+    filename = varargin{3};
+    pathname = varargin{4};
+else
+    [filename, pathname] = uigetfile('.tif', 'Select the montaged image');
+    if isequal(filename,0) || isequal(pathname,0)
        disp('User pressed cancel.');
        return;
     else
        disp(['User selected ', fullfile(pathname, filename)])
-       montIm = imread([pathname,filename], 'tif');
-       montIm = mat2gray(montIm);
+    end
 end
+
+montIm = imread([pathname,filename], 'tif');
+montIm = mat2gray(montIm);
+
 
 % Determine the coordinates of the middle of the first square by: 
 % 1. Asking the user to enter it manually. 
