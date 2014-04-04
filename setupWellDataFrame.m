@@ -26,7 +26,7 @@ if exist([pathname, matname], 'file')
     % Load the data mat file and check for the existence of the data frame
     % for sl#_w#_data
     
-    load([pathname, matname], '.mat');
+    load([pathname, matname]);
     dataFrameExist = exist(dataFrameName, 'var');
     
     if dataFrameExist
