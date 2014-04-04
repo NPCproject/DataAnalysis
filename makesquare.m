@@ -25,9 +25,61 @@ rightX = midX + halfSqLength - 1; % - 1 to keep the size at (sqLength,sqLength)
 upY = midY - halfSqLength;
 downY = midY + halfSqLength - 1; % - 1 to keep the size at (sqLength,sqLength)
 
-if (rightX>xlimit)||(downY>ylimit)
+if (leftX>xlimit)||(upY>ylimit) || ((rightX > xlimit) && (downY > ylimit))
     sqIm=zeros(sqLength,sqLength);
     sqIm=double(sqIm);
 else
-    sqIm = montIm(upY:downY,leftX:rightX); %need to change orientation if using dipimage
+    
+    if rightX>xlimit
+        rightX = xlimit;
+        sqIm=montIm(upY:downY,leftX:rightX);
+        
+        % make missing columns
+        missingcols = sqLength - size(sqIm,2);
+        zeroCols = zeros(sqLength,missingcols);
+        
+        sqIm=[sqIm, zeroCols];
+        
+    elseif leftX<1
+        
+        leftX = 1;
+        
+        sqIm=montIm(upY:downY,leftX:rightX);
+        
+        % make missing columns
+        missingcols = sqLength - size(sqIm,2);
+        zeroCols = zeros(sqLength,missingcols);
+        
+        sqIm=[zeroCols, sqIm];
+    
+    elseif upY < 1
+        
+        upY = 1;
+        sqIm=montIm(upY:downY,leftX:rightX);
+        
+        % make missing rows with zeros
+        missingrows = sqLength - size(sqIm,1);
+        zeroRows = zeros(missingrows, sqLength);
+        
+        % combine sqIm with zero matrix
+        sqIm = [zeroRows ; sqIm];
+        
+    elseif downY > ylimit
+        
+        upY = 1;
+        sqIm=montIm(upY:downY,leftX:rightX);
+        
+        % make missing rows with zeros
+        missingrows = sqLength - size(sqIm,1);
+        zeroRows = zeros(missingrows, sqLength);
+        
+        % combine sqIm with zero matrix
+        sqIm = [sqIm ; zeroRows];
+    
+    else
+        
+        sqIm=montIm(upY:downY,leftX:rightX);
+    end
+    
+    
 end
