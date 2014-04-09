@@ -70,7 +70,7 @@ else
         
     elseif downY > ylimit
         
-        upY = 1;
+        downY = ylimit;
         sqIm=montIm(upY:downY,leftX:rightX);
         
         % make missing rows with zeros
