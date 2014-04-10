@@ -1,23 +1,25 @@
-function x = fieldSizeParity(dataFrame, varargin)
+function x = fieldSizeParity(dataFrame, fieldsList)
 % 
-% X = FIELDSIZEPARITY(dataStruct, varargin);
+% X = FIELDSIZEPARITY(dataStruct, fieldsList);
 % 
 % This function checks to see whether the fields specified in varargin
 % (list of strings) are equal in size. 
 %
 % dataFrame (structure) : data frame created by createBlankDataFrame
-% varargin (cell array) : strings that specify the fields in dataFrame
+% fieldsList (cell array) : strings that specify the fields in dataFrame
 % x (bool): returns true if all fields are the same size. 
 
-sizearray=cell(1, nargin-1);
 
-for i=1:(nargin-1)
+numfields=size(fieldsList,2);
+sizearray=cell(1, numfields);
+
+for i=1:numfields
     
-    value = getfield(dataFrame, varargin{i});
+    value = getfield(dataFrame, fieldsList{i});
     sizearray{i} = size(value);
     
 end
 
-sizearrayoffset = {sizearray{2:(nargin-1)}, sizearray{1}}; % shift the array by one cell
+sizearrayoffset = {sizearray{2:numfields}, sizearray{1}}; % shift the array by one cell
     
 x = isequal(sizearray, sizearrayoffset); % if all cells are the same value, this returns true
