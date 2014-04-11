@@ -29,7 +29,7 @@ function varargout = stainedCellCounter(varargin)
 
 % Edit the above text to modify the response to help stainedCellCounter
 
-% Last Modified by GUIDE v2.5 10-Apr-2014 11:12:21
+% Last Modified by GUIDE v2.5 10-Apr-2014 17:22:29
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -252,6 +252,16 @@ if handles.numtypes
     prevtype=handles.AstrIndices{2};
     set(hObject, 'Value', prevtype)
 end
+
+% --- Executes on key press with focus on Tuj1Num and none of its controls.
+function Tuj1Num_KeyPressFcn(hObject, eventdata, handles)
+% hObject    handle to Tuj1Num (see GCBO)
+% eventdata  structure with the following fields (see UICONTROL)
+%	Key: name of the key that was pressed, in lower case
+%	Character: character interpretation of the key(s) that was pressed
+%	Modifier: name(s) of the modifier key(s) (i.e., control, shift) pressed
+% handles    structure with handles and user data (see GUIDATA)
+
 
 % --- Executes on key press with focus on UnstNum and none of its controls.
 function UnstNum_KeyPressFcn(hObject, eventdata, handles)
@@ -776,3 +786,6 @@ function BlueStk_select_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+
