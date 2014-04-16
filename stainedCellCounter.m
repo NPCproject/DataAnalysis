@@ -504,16 +504,30 @@ if handles.n <= handles.totalnum
                 currhandle = eval(handlename);
                 currstr = get(currhandle, 'String');
                 currnum = str2num(currstr);
-                allrows = [allrows currnum];
-                set(currhandle, 'String', '0'); %set current handle to 0.
+                
+                if isempty(currnum) %checks to make sure that the entry is numeric
+                    return;
+                else
+                    allrows = [allrows currnum];
+                end
             end
+            
+            % resets all the handles to 0
+            
+            for i=1:numtypes
+                set(eval(handleNames{i}), 'String', '0'); %set current handle to 0.
+            end
+            
+            % sets the new data into the uitable & updates
+            % handles.slicenum, and handles.n
             
             tabledata = [flipud(tabledata); allrows];
             set(handles.uitable1,'Data', flipud(tabledata));
-            
             handles.n = handles.n + 1;
             set(handles.slicenum, 'String', num2str(handles.n)); %update slice label
             
+            
+            % tests to see if the end of the stack has been reached
             
             if handles.n <= handles.totalnum
                 
