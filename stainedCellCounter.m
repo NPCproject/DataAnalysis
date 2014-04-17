@@ -395,6 +395,7 @@ else
    
    % roll displayed image back by 1
    handles = plotpictures(handles);
+   set(handles.slicenum, 'String', num2str(n));
    
    % roll data in uitable1 back by 1
    tabledata = get(handles.uitable1, 'Data');
