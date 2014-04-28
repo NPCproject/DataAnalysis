@@ -10,7 +10,7 @@ function tabledata = getTableData(dataFrame, fieldsList)
 % fieldsList(cell array): specifies the order that the data from dataFrame
 %                         should go into the tabledata array
 
-numfields=size(fieldsList,1);
+numfields=size(fieldsList,2);
 tabledata=[];
 
 %check that all the fields have the same length of data
@@ -18,7 +18,7 @@ tabledata=[];
 if fieldSizeParity(dataFrame, fieldsList)
 
     for i=1:numfields
-        currData = getfields(dataFrame, fieldsList{i};    
+        currData = getfield(dataFrame, fieldsList{i});    
         tabledata = [tabledata, currData'];
     end
     

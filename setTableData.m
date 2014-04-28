@@ -16,6 +16,6 @@ for i=1:numfields
     
     fieldName = fieldsList{i};
     currDataVector = tabledata(:,i)';
-    eval(['dataFrame.' fieldName '= currDataVector']);
+    eval(['dataFrame.' fieldName '= currDataVector;']);
 
 end
