@@ -29,7 +29,7 @@ function varargout = stainedCellCounter(varargin)
 
 % Edit the above text to modify the response to help stainedCellCounter
 
-% Last Modified by GUIDE v2.5 10-Apr-2014 17:22:29
+% Last Modified by GUIDE v2.5 28-Apr-2014 19:26:43
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -367,12 +367,18 @@ if numtypes==0
 end
 
 tabledata = getTableData(handles.dataFrame, handles.fieldsList);
+
+% find and set n = size of data
+n = min(size(tabledata,1)+1, 247); % if n = 247, then this caps the number to 247.
+handles.n = n;
+
+% add slice number labels to data in table: 
+
+sliceNumCol = [1:n-1];
+tabledata = [sliceNumCol' tabledata];
+
 set(handles.uitable1, 'Data', flipud(tabledata));
 
-% set n = size of data
-n = size(tabledata,1)+1;
-handles.n = n;
-  
 % set slice number indicator
 set(handles.slicenum, 'String', num2str(n));
 guidata(hObject, handles);
@@ -424,6 +430,10 @@ tabledata = flipud(get(handles.uitable1, 'Data'));
 % Load the well data frame from the .mat file
 
 load([handles.pathname, handles.matname]);
+
+% Remove first column from tabledata: 
+
+tabledata = tabledata(:, 2:end);
 
 % Set the data in fieldsList into the data frame variable
 
@@ -496,7 +506,7 @@ if handles.n <= handles.totalnum
             tabledata = get(handles.uitable1,'Data');
             
             %read all inputs at each textbox
-            allrows = [];
+            allrows = [handles.n];
             
             handleNames={'handles.Tuj1Num', 'handles.GFAPNum', 'handles.DblNum', 'handles.UnstNum', 'handles.type1AstrNum', 'handles.type2AstrNum'};
             
@@ -803,4 +813,11 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-
+% --- Executes on key press with focus on uitable1 and none of its controls.
+function uitable1_KeyPressFcn(hObject, eventdata, handles)
+% hObject    handle to uitable1 (see GCBO)
+% eventdata  structure with the following fields (see UITABLE)
+%	Key: name of the key that was pressed, in lower case
+%	Character: character interpretation of the key(s) that was pressed
+%	Modifier: name(s) of the modifier key(s) (i.e., control, shift) pressed
+% handles    structure with handles and user data (see GUIDATA)
