@@ -427,7 +427,7 @@ load([handles.pathname, handles.matname]);
 
 % Set the data in fieldsList into the data frame variable
 
-dataFrame = setTableData(tabledata, handles.dataFrame, handles.fieldsList);
+dataFrame = setTableData(tabledata, handles.dataFrame, handles.fieldsList) %display it in command window
 
 % Assign the value of dataFrame into dataFrameName
 
