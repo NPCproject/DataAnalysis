@@ -29,7 +29,7 @@ function varargout = stainedCellCounter(varargin)
 
 % Edit the above text to modify the response to help stainedCellCounter
 
-% Last Modified by GUIDE v2.5 28-Apr-2014 19:26:43
+% Last Modified by GUIDE v2.5 29-Apr-2014 12:12:51
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -369,17 +369,18 @@ end
 tabledata = getTableData(handles.dataFrame, handles.fieldsList);
 
 % find and set n = size of data
-n = min(size(tabledata,1)+1, 247); % if n = 247, then this caps the number to 247.
-handles.n = n;
+
+n = size(tabledata,1);
 
 % add slice number labels to data in table: 
 
-sliceNumCol = [1:n-1];
+sliceNumCol = [1:n];
 tabledata = [sliceNumCol' tabledata];
-
 set(handles.uitable1, 'Data', flipud(tabledata));
 
-% set slice number indicator
+% set slice number indicator to next picture
+
+handles.n = min(n+1, 247); % increment n by 1 and cap at 247. 
 set(handles.slicenum, 'String', num2str(n));
 guidata(hObject, handles);
 
@@ -503,10 +504,10 @@ if handles.n <= handles.totalnum
             % the bottom automatically. Since we want to check the data as
             % we go, it's usful to have the table look like a LIFO stack. 
             
-            tabledata = get(handles.uitable1,'Data');
+            tabledata = flipud(get(handles.uitable1,'Data'));
             
             %read all inputs at each textbox
-            allrows = [handles.n];
+            currRow = [handles.n]; %start with slice number
             
             handleNames={'handles.Tuj1Num', 'handles.GFAPNum', 'handles.DblNum', 'handles.UnstNum', 'handles.type1AstrNum', 'handles.type2AstrNum'};
             
@@ -519,7 +520,7 @@ if handles.n <= handles.totalnum
                 if isempty(currnum) %checks to make sure that the entry is numeric
                     return;
                 else
-                    allrows = [allrows currnum];
+                    currRow = [currRow currnum];
                 end
             end
             
@@ -532,7 +533,7 @@ if handles.n <= handles.totalnum
             % sets the new data into the uitable & updates
             % handles.slicenum, and handles.n
             
-            tabledata = [flipud(tabledata); allrows];
+            tabledata(handles.n,:) = currRow;
             set(handles.uitable1,'Data', flipud(tabledata));
             handles.n = handles.n + 1;
             set(handles.slicenum, 'String', num2str(handles.n)); %update slice label
@@ -556,6 +557,34 @@ if handles.n <= handles.totalnum
     end
 
 guidata(hObject, handles);
+
+
+% --- Executes when selected cell(s) is changed in uitable1.
+function uitable1_CellSelectionCallback(hObject, eventdata, handles)
+% hObject    handle to uitable1 (see GCBO)
+% eventdata  structure with the following fields (see UITABLE)
+%	Indices: row and column indices of the cell(s) currently selecteds
+% handles    structure with handles and user data (see GUIDATA)
+
+tabledata = get(handles.uitable1,'Data');
+
+if ~isempty(eventdata.Indices) % we need this check because updating the uitable re-triggers this callback, with a null vector in eventdata.Indices. 
+    
+    slicenum = tabledata(eventdata.Indices(1));
+    
+    % set handles.n
+    
+    handles.n = slicenum;
+    set(handles.slicenum, 'String', num2str(handles.n));
+    
+    % display pictures
+    
+    handles = plotpictures(handles);
+
+end
+
+guidata(hObject, handles);
+    
 
 % --- Executes during object creation, after setting all properties.
 function type1AstrSelect_CreateFcn(hObject, eventdata, handles)
@@ -813,11 +842,16 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-% --- Executes on key press with focus on uitable1 and none of its controls.
-function uitable1_KeyPressFcn(hObject, eventdata, handles)
+
+% --- Executes when entered data in editable cell(s) in uitable1.
+function uitable1_CellEditCallback(hObject, eventdata, handles)
 % hObject    handle to uitable1 (see GCBO)
 % eventdata  structure with the following fields (see UITABLE)
-%	Key: name of the key that was pressed, in lower case
-%	Character: character interpretation of the key(s) that was pressed
-%	Modifier: name(s) of the modifier key(s) (i.e., control, shift) pressed
+%	Indices: row and column indices of the cell(s) edited
+%	PreviousData: previous data for the cell(s) edited
+%	EditData: string(s) entered by the user
+%	NewData: EditData or its converted form set on the Data property. Empty if Data was not changed
+%	Error: error string when failed to convert EditData to appropriate value for Data
 % handles    structure with handles and user data (see GUIDATA)
+
+
