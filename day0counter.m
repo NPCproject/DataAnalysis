@@ -386,7 +386,7 @@ function save_Callback(hObject, eventdata, handles)
 
 % Determine the dataFrameName
 
-dataFrameName = makeDataFrameName(handles.RimstackName);
+dataFrameName = makeDataFrameName(handles.TLimstackName);
 
 % Get the data from the GUI
 
