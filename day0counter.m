@@ -30,7 +30,7 @@ function varargout = day0counter(varargin)
 
 % Edit the above text to modify the response to help day0counter
 
-% Last Modified by GUIDE v2.5 28-Mar-2014 11:49:53
+% Last Modified by GUIDE v2.5 29-Apr-2014 22:32:01
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -69,6 +69,7 @@ set(handles.type1AstrSelect, 'String', AstrNameList);
 set(handles.type2AstrSelect, 'String', AstrNameList);
 handles.AstrNameList = AstrNameList;
 handles.numtypes = 0;
+handles.stkloaded = 0;
 
 % Update handles structure
 guidata(hObject, handles);
@@ -175,35 +176,48 @@ handles.AstrIndices={type1AstrIndex, type2AstrIndex};
 % Assume that the list of options has not changed: 
 % {'None', 'CortA', 'Delta CortA', 'Efn CortA', 'Wnt CortA'}
 
-if (type1AstrIndex==1)&&(type2AstrIndex~=1)
+if (type1AstrIndex==1)&(type2AstrIndex~=1)
     display('Please move Astrocyte selection to the first popup menu and press Load again');
     handles.numtypes = 0;
     
 elseif type1AstrIndex==1
     
     handles.numtypes = 1;
+    handles.fieldsList = {'numNPCs_d0'};
     
 elseif type2AstrIndex==1
     
     handles.numtypes = 2;
+    handles.fieldsList = {'numNPCs_d0', ['num' type1AstrName '_d0']};
     
 else
     
     handles.numtypes = 3;
+    handles.fieldsList = {'numNPCs_d0', ['num' type1AstrName '_d0'], ['num' type2AstrName '_d0']};
     
+end
+
+% Load corresponding dataFrame and save in handles object
+
+load([handles.pathname, handles.matname]);
+dataFrameName = makeDataFrameName(handles.TLimstackName);
+varlist = who;
+DFexist = regexp(varlist,dataFrameName);
+
+if ~isempty(DFexist)
+    dataFrame = eval(dataFrameName);
+    handles.dataFrame=dataFrame;
+else
+    error(['Data frame does not exist in ' matname ' file']);
 end
 
 % Load previous data if necessary
 
 if get(handles.load_prev, 'Value')
     
-    load([handles.pathname, handles.matname]); % reload data mat file
-    dataFrame = eval(makeDataFrameName(TLimstackName));
-    loadTableData(dataFrame, hObject, handles);
+    loadTableData(hObject, handles);
     handles = guidata(hObject); %retrieve data from loadTableData
-    
-    % set currIm first: 
-    
+        
     % load appropriate images into current window
     
     handles = plotpictures(handles);
@@ -303,71 +317,36 @@ end
 
 % --- Sets data frame data into uitable
 
-function loadTableData(dataFrame, hObject, handles)
+function loadTableData(hObject, handles)
 % dataFrame structure with data for the slide and well. sl#_w#_data
 % handles structure with handles and user data (see GUIDATA)
-
-% First, figure out how many cell types we are working with
+% First, figure out how many cell typxes we are working with
 
 numtypes = handles.numtypes;
 
 % Pull out the relevant data vectors out of the data structure
+
 if numtypes==0
     error(['Number of cell types not set'])
 end
 
-if numtypes>=1
-    
-    NPCData = dataFrame.numNPCs_d0;
-    
-    if isscalar(NPCData) % i.e. if no data has been entered yet
-        tabledata=[];
-        set(handles.uitable1,'Data',tabledata);
-    else
-        tabledata = NPCData'; % NPC data is horizontal vector
-        set(handles.uitable1,'Data', flipud(tabledata));
-    end
+tabledata = getTableData(handles.dataFrame, handles.fieldsList);
 
-end
+% find and set n = size of data
 
-if numtypes>=2
-    
-    type1Index = handles.AstrIndices{1};
-    type1AstrName = handles.AstrNameList{type1Index};
-    d0type1AstrDataName = ['num' type1AstrName '_d0'];
-    d0type1AstrData = getfield(dataFrame, d0type1AstrDataName);
-    
-    if isscalar(d0type1AstrData) || ~fieldSizeParity(dataFrame, 'numNPCs_d0', d0type1AstrDataName)
-        tabledata=[];
-        set(handles.uitable1, 'Data', tabledata);
-    else
-        tabledata = [tabledata d0type1AstrData']; %append d0type1AstrData to tabledata
-        set(handles.uitable1,'Data', flipud(tabledata));
-    end
-end
+n = size(tabledata,1);
 
-if numtypes>=3
-    
-    type2Index = handles.AstrIndices{2};
-    type2AstrName = handles.AstrNameList{type2Index};
-    d0type2AstrDataName = ['num' type2AstrName '_d0'];
-    d0type2AstrData = getfield(dataFrame, d0type2AstrDataName);
-    
-    if isscalar(d0type2AstrData) || ~fieldSizeParity(dataFrame, 'numNPCs_d0', d0type1AstrDataName, d0type2AstrDataName)
-        tabledata=[];
-        set(handles.uitable1,'Data',tabledata);
-    else
-        tabledata = [tabledata d0type2AstrData']; %append d0type2AstrData to tabledata
-        set(handles.uitable1,'Data', flipud(tabledata));
-    end
-end
+% add slice number labels to data in table: 
 
-% set n = size of data
-n = size(tabledata,1)+1;
-handles.n = n;
-  
-% set slice number indicator
+sliceNumCol = [1:n];
+tabledata = [sliceNumCol' tabledata];
+set(handles.uitable1, 'Data', flipud(tabledata));
+
+% set slice number indicator to next picture
+
+handles.n = min(n+1, 247); % increment n by 1 and cap at 247. 
 set(handles.slicenum, 'String', num2str(n));
+
 guidata(hObject, handles);
 
 % --- Executes on button press in undo.
@@ -405,64 +384,36 @@ function save_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% First, figure out how many cell types we are working with
+% Determine the dataFrameName
 
-numtypes = handles.numtypes;
+dataFrameName = makeDataFrameName(handles.RimstackName);
 
-% Parse the matlab table data into different vectors & save into sl#_w#
-% data structure
+% Get the data from the GUI
 
-dataFrameName = makeDataFrameName(handles.TLimstackName);
-load([handles.pathname, handles.matname], dataFrameName);
+tabledata = flipud(get(handles.uitable1, 'Data'));
 
-switch numtypes
-    case 1    
-        
-        tabledata = flipud(get(handles.uitable1, 'Data'));
-        tabledata = tabledata';
-        
-        % Save this data to NPCData field in data variable in .mat file.
-        
-        eval([dataFrameName '.numNPCs_d0 = tabledata']);
-        save([handles.pathname, handles.matname], dataFrameName, '-append');
-        
-    case 2
-        
-        tabledata = flipud(get(handles.uitable1, 'Data'));
-        tabledata = tabledata';
-        
-        type1AstrName = handles.AstrNames{1};
-        type1AstrName_d0 = ['num' type1AstrName '_d0'];
-        
-        eval([dataFrameName '.numNPCs_d0 = tabledata(1,:)']);
-        eval([dataFrameName '.' type1AstrName_d0 '=tabledata(2,:)']);
-        
-    case 3
-        
-        tabledata = flipud(get(handles.uitable1, 'Data'));
-        tabledata = tabledata';
-        
-        type1AstrName = handles.AstrNames{1};
-        type1AstrName_d0 = ['num' type1AstrName '_d0'];
-        type2AstrName = handles.AstrNames{2};
-        type2AstrName_d0 = ['num' type1AstrName '_d0'];
-        
-        eval([dataFrameName '.numNPCs_d0 = tabledata(1,:)']);
-        eval([dataFrameName '.' type1AstrName_d0 '=tabledata(2,:)']);
-        eval([dataFrameName '.' type2AstrName_d0 '=tabledata(3,:)']);
-        
-        
-    otherwise
-        
-        error(['Number of cell types not set'])
-end
+% Load the well data frame from the .mat file
+
+load([handles.pathname, handles.matname]);
+
+% Remove first column from tabledata: 
+
+tabledata = tabledata(:, 2:end);
+
+% Set the data in fieldsList into the data frame variable
+
+dataFrame = setTableData(tabledata, handles.dataFrame, handles.fieldsList) %display it in command window
+
+% Assign the value of dataFrame into dataFrameName
+
+eval([dataFrameName '= dataFrame;']);
+
+% Save the dataFrame (with the right 'sl#_w#_data' name) into the .mat file
 
 save([handles.pathname,handles.matname], dataFrameName, '-append');
 
-% Save the sl#_w#_data structure into the .mat file
 
-
-function outputhandles=plotpictures(handles)
+function outputhandles = plotpictures(handles)
 
 n = handles.n;
 
@@ -479,12 +430,25 @@ if n > 1
     
 end
 
+
 %plot current pictures in axes
 
 if strcmp(handles.FLimstackName,'None')
     currIm=handles.TLimstack{n};
 else
-    currIm = combine2ch(handles.TLimstack{n}, handles.FLimstack{n});
+    
+    TLchannel = handles.TLimstack{n};
+    FLchannel = handles.FLimstack{n};
+    
+    if ~get(handles.checkTL, 'Value')
+        TLchannel = 0 * TLchannel;
+    end
+    
+    if ~get(handles.checkFL, 'Value')
+        FLchannel = 0 * FLchannel;
+    end
+    
+    currIm = combine2ch(TLchannel, FLchannel);
 end
 
 imshow(currIm, 'Parent', eval('handles.axes1'));
@@ -511,10 +475,10 @@ if handles.n <= handles.totalnum
             % the bottom automatically. Since we want to check the data as
             % we go, it's usful to have the table look like a LIFO stack. 
             
-            tabledata = get(handles.uitable1,'Data');
+            tabledata = flipud(get(handles.uitable1,'Data'));
             
             %read all inputs at each textbox
-            allrows = [];
+            currRow = [handles.n];
             
             handleNames={'handles.NPCnum', 'handles.type1AstrNum', 'handles.type2AstrNum'};
             
@@ -522,16 +486,30 @@ if handles.n <= handles.totalnum
                 handlename = handleNames{i};
                 currhandle = eval(handlename);
                 currstr = get(currhandle, 'String');
-                currnum = str2num(currstr);
-                allrows = [allrows currnum];
-                set(currhandle, 'String', '0'); %set current handle to 0.
+                currnum = str2num(currstr); 
+                
+                if isempty(currnum) %checks to make sure that the entry is numeric
+                    return;
+                else
+                    currRow = [currRow currnum];
+                end
             end
             
-            tabledata = [flipud(tabledata); allrows];
-            set(handles.uitable1,'Data', flipud(tabledata));
+            % resets all the handles to 0
             
+            for i=1:numtypes
+                set(eval(handleNames{i}), 'String', '0'); %set current handle to 0.
+            end
+            
+            % sets the new data into the uitable & updates
+            % handles.slicenum, and handles.n
+            
+            tabledata(handles.n,:) = currRow;
+            set(handles.uitable1,'Data', flipud(tabledata));
             handles.n = handles.n + 1;
             set(handles.slicenum, 'String', num2str(handles.n)); %update slice label
+            
+            % tests to see if the end of the stack has been reached
             
             if handles.n <= handles.totalnum
                 
@@ -549,6 +527,34 @@ if handles.n <= handles.totalnum
     end
 
 guidata(hObject, handles);
+
+% --- Executes when selected cell(s) is changed in uitable1.
+function uitable1_CellSelectionCallback(hObject, eventdata, handles)
+% hObject    handle to uitable1 (see GCBO)
+% eventdata  structure with the following fields (see UITABLE)
+%	Indices: row and column indices of the cell(s) currently selecteds
+% handles    structure with handles and user data (see GUIDATA)
+
+tabledata = get(handles.uitable1,'Data');
+
+if ~isempty(eventdata.Indices) % we need this check because updating the uitable re-triggers this callback, with a null vector in eventdata.Indices. 
+    
+    slicenum = tabledata(eventdata.Indices(1));
+    
+    % set handles.n
+    
+    handles.n = slicenum;
+    set(handles.slicenum, 'String', num2str(handles.n));
+    
+    % display pictures
+    
+    handles = plotpictures(handles);
+
+end
+
+guidata(hObject, handles);
+
+
 
 % --- Executes during object creation, after setting all properties.
 function type1AstrSelect_CreateFcn(hObject, eventdata, handles)
@@ -677,3 +683,32 @@ function FLstk_select_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+% --- Executes on button press in checkTL.
+function checkTL_Callback(hObject, eventdata, handles)
+% hObject    handle to checkTL (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of checkTL
+
+if handles.stkloaded
+    handles = plotpictures(handles);
+end
+
+guidata(hObject, handles);
+
+% --- Executes on button press in checkFL.
+function checkFL_Callback(hObject, eventdata, handles)
+% hObject    handle to checkFL (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of checkFL
+
+if handles.stkloaded
+    handles = plotpictures(handles);
+end
+
+guidata(hObject, handles);
