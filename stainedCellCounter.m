@@ -356,7 +356,7 @@ function loadTableData(hObject, handles)
 % dataFrame structure with data for the slide and well. sl#_w#_data
 % handles structure with handles and user data (see GUIDATA)
 
-% First, figure out how many cell types we are working with
+% First, figure out how many cell typxes we are working with
 
 numtypes = handles.numtypes;
 
@@ -558,33 +558,6 @@ if handles.n <= handles.totalnum
 
 guidata(hObject, handles);
 
-
-% --- Executes when selected cell(s) is changed in uitable1.
-function uitable1_CellSelectionCallback(hObject, eventdata, handles)
-% hObject    handle to uitable1 (see GCBO)
-% eventdata  structure with the following fields (see UITABLE)
-%	Indices: row and column indices of the cell(s) currently selecteds
-% handles    structure with handles and user data (see GUIDATA)
-
-tabledata = get(handles.uitable1,'Data');
-
-if ~isempty(eventdata.Indices) % we need this check because updating the uitable re-triggers this callback, with a null vector in eventdata.Indices. 
-    
-    slicenum = tabledata(eventdata.Indices(1));
-    
-    % set handles.n
-    
-    handles.n = slicenum;
-    set(handles.slicenum, 'String', num2str(handles.n));
-    
-    % display pictures
-    
-    handles = plotpictures(handles);
-
-end
-
-guidata(hObject, handles);
-    
 
 % --- Executes during object creation, after setting all properties.
 function type1AstrSelect_CreateFcn(hObject, eventdata, handles)
