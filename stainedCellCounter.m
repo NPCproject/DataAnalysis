@@ -29,7 +29,7 @@ function varargout = stainedCellCounter(varargin)
 
 % Edit the above text to modify the response to help stainedCellCounter
 
-% Last Modified by GUIDE v2.5 29-Apr-2014 12:12:51
+% Last Modified by GUIDE v2.5 07-May-2014 16:01:22
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -853,5 +853,3 @@ function uitable1_CellEditCallback(hObject, eventdata, handles)
 %	NewData: EditData or its converted form set on the Data property. Empty if Data was not changed
 %	Error: error string when failed to convert EditData to appropriate value for Data
 % handles    structure with handles and user data (see GUIDATA)
-
-
