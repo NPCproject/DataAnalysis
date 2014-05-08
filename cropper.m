@@ -30,7 +30,7 @@ function [midX midY] = cropper(varargin)
 % 
 
 % Specify parameters
-sqLength = 300;
+sqLength = 350;
 numRows = 19;
 numCols = 13;
 numSq = numRows*numCols;
