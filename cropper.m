@@ -30,12 +30,12 @@ function [midX midY] = cropper(varargin)
 % 
 
 % Specify parameters
-sqLength = 350;
+sqLength = 300;
 numRows = 19;
 numCols = 13;
 numSq = numRows*numCols;
-xpitch = 770.5; %switch for dipimage arrays
-ypitch = 773.1;
+xpitch = 542; %switch for dipimage arrays
+ypitch = 541;
 
 % Ask user to select the file: 
 
