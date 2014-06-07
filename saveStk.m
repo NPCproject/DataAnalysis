@@ -3,7 +3,7 @@ function saveStk(imstack, filename, pathname)
 % SAVESTK(imstack,filename,pathname)
 %
 % Takes in a cropped image stack from the cropper() function and saves the
-% image stack into the appropriate stack mat file (sl#_stks.mat). The
+% image stack into the appropriate stack mat file (sl#_w#_stks.mat). The
 % stkname will be sl#_w#_d#_ch_stk (which is the original filename
 % concatenated with "_stk". 
 %
@@ -14,7 +14,7 @@ function saveStk(imstack, filename, pathname)
 
 nameFields = parsefilename(filename); 
 matname = strcat(nameFields{1},'.mat');
-stkfilename = strcat(nameFields{1},'_stks.mat');
+stkfilename = strcat(nameFields{1},'_', nameFields{2},'_stks.mat');
 stkName = strcat(filename(1:end-4),'_stk');
 eval([stkName '= imstack;']); 
 
