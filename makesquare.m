@@ -27,7 +27,7 @@ rightX = midX + halfSqLength - 1; % - 1 to keep the size at (sqLength,sqLength)
 upY = midY - halfSqLength;
 downY = midY + halfSqLength - 1; % - 1 to keep the size at (sqLength,sqLength)
 
-if (leftX>xlimit)||(upY>ylimit) || ((rightX > xlimit) && (downY > ylimit)) || ((rightX > xlimit) && (upY < 1))
+if (leftX < 1)||(upY > ylimit) || ((rightX > xlimit) && (downY > ylimit)) || ((rightX > xlimit) && (upY < 1)) || ((leftX < 1) && (downY > ylimit))
     sqIm=zeros(sqLength,sqLength);
     sqIm=double(sqIm);
 else
