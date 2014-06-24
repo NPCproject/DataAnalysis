@@ -107,7 +107,7 @@ handles.numtypes = 0;
 % List d0 data variables in local environment. Using reexp, find all
 % variables that are of the form d0.*_stk
 
-S = whos('-file', [pathname, stksname], '-regexp', 'd6.*_stk');
+S = whos('-file', [pathname, stksname], '-regexp', 'd[5-7].*_stk');
 d6stks = {S.name};
 
 set(handles.RedStk_select, 'String', d6stks);
