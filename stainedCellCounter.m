@@ -29,7 +29,7 @@ function varargout = stainedCellCounter(varargin)
 
 % Edit the above text to modify the response to help stainedCellCounter
 
-% Last Modified by GUIDE v2.5 07-May-2014 16:01:22
+% Last Modified by GUIDE v2.5 23-Jun-2014 21:14:09
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -113,6 +113,8 @@ d6stks = {S.name};
 set(handles.RedStk_select, 'String', d6stks);
 set(handles.GreenStk_select, 'String', d6stks);
 set(handles.BlueStk_select, 'String', d6stks);
+set(handles.TxRedStk_select, 'String', d6stks);
+set(handles.YFPStk_select, 'String', d6stks);
 
 guidata(hObject, handles);
 
@@ -131,23 +133,32 @@ load([handles.pathname, handles.stksname]);
 Rindex = get(handles.RedStk_select, 'Value');
 Rimstacks = get(handles.RedStk_select, 'String');
 RimstackName = Rimstacks{Rindex};
-load([handles.pathname, handles.stksname], RimstackName);
 handles.Rimstack = eval(RimstackName);
 handles.RimstackName = RimstackName;
 
 Gindex = get(handles.GreenStk_select, 'Value');
 Gimstacks = get(handles.GreenStk_select, 'String');
 GimstackName = Gimstacks{Gindex};
-load([handles.pathname, handles.stksname], GimstackName);
 handles.Gimstack = eval(GimstackName);
 handles.GimstackName = GimstackName;
 
 Bindex = get(handles.BlueStk_select, 'Value');
 Bimstacks = get(handles.BlueStk_select, 'String');
 BimstackName = Bimstacks{Bindex};
-load([handles.pathname, handles.stksname], BimstackName);
 handles.Bimstack = eval(BimstackName);
 handles.BimstackName = BimstackName;
+
+TRindex = get(handles.TxRedStk_select, 'Value');
+TRimstacks = get(handles.TxRedStk_select, 'String');
+TRimstackName = TRimstacks{TRindex};
+handles.TRimstack = eval(TRimstackName);
+handles.TRimstackName = TRimstackName;
+
+YFPindex = get(handles.YFPStk_select, 'Value');
+YFPimstacks = get(handles.YFPStk_select, 'String');
+YFPimstackName = Rimstacks{YFPindex};
+handles.YFPimstack = eval(YFPimstackName);
+handles.YFPimstackName = YFPimstackName;
 
 % initializes variables in handles structure 
 handles.totalnum = size(handles.Rimstack, 1);
@@ -162,7 +173,7 @@ handles.AstrIndices={type1AstrIndex, type2AstrIndex};
 % Assume that the list of options has not changed: 
 % {'None', 'CortA', 'Delta CortA', 'Efn CortA', 'Wnt CortA'}
 
-if (type1AstrIndex==1)&(type2AstrIndex~=1)
+if (type1AstrIndex==1)&&(type2AstrIndex~=1)
     display('Please move Astrocyte selection to the first popup menu and press Load again');
     handles.numtypes = 0;
     
@@ -317,7 +328,13 @@ function checkRed_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hint: get(hObject,'Value') returns toggle state of checkRed
+currStatus = get(hObject, 'Value');
+
+if currStatus
+
+    set(handles.checkTxRed, 'Value', 0);
+end
+
 if handles.stkloaded
     handles = plotpictures(handles);
 end
@@ -330,7 +347,13 @@ function checkGreen_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hint: get(hObject,'Value') returns toggle state of checkGreen
+currStatus = get(hObject, 'Value');
+
+if currStatus
+
+    set(handles.checkYFP, 'Value', 0);
+end
+
 if handles.stkloaded
     handles = plotpictures(handles);
 end
@@ -343,7 +366,44 @@ function checkBlue_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hint: get(hObject,'Value') returns toggle state of checkBlue
+if handles.stkloaded
+    handles = plotpictures(handles);
+end
+guidata(hObject, handles);
+
+
+% --- Executes on button press in checkTxRed.
+function checkTxRed_Callback(hObject, eventdata, handles)
+% hObject    handle to checkTxRed (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+currStatus = get(hObject, 'Value');
+
+if currStatus
+
+    set(handles.checkRed, 'Value', 0);
+end
+
+if handles.stkloaded
+    handles = plotpictures(handles);
+end
+guidata(hObject, handles);
+
+% --- Executes on button press in checkYFP.
+function checkYFP_Callback(hObject, eventdata, handles)
+% hObject    handle to checkYFP (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+currStatus = get(hObject, 'Value');
+
+if currStatus
+
+    set(handles.checkGreen, 'Value', 0);
+
+end
+
 if handles.stkloaded
     handles = plotpictures(handles);
 end
@@ -460,20 +520,30 @@ if n > 1
     imshow(prevRGBim, 'Parent', handles.prev_axes1);
 
 end
-  
-Rchannel = handles.Rimstack{n};
-Gchannel = handles.Gimstack{n};
-Bchannel = handles.Bimstack{n};
 
-if ~get(handles.checkRed, 'Value')
-    Rchannel = 0 * Rchannel;
+% Set all three channels depending on statuses of checkboxes
+
+if get(handles.checkRed, 'Value')
+    Rchannel = handles.Rimstack{n};
+elseif get(handles.checkTxRed, 'Value')
+    Rchannel = handles.TRimstack{n};
+else
+    Rchannel = 0 * handles.Rimstack{n};
 end
 
-if ~get(handles.checkGreen, 'Value')
-    Gchannel = 0 * Gchannel;
+
+if get(handles.checkGreen, 'Value')
+    Gchannel = handles.Gimstack{n};
+elseif get(handles.checkYFP, 'Value')
+    Gchannel = handles.YFPimstack{n};
+else
+    Gchannel = 0 * handles.Gimstack{n};
 end
 
-if ~get(handles.checkBlue, 'Value')
+
+if get(handles.checkBlue, 'Value')
+    Bchannel = handles.Bimstack{n};
+else
     Bchannel = 0 * Bchannel;
 end
 
@@ -853,3 +923,49 @@ function uitable1_CellEditCallback(hObject, eventdata, handles)
 %	NewData: EditData or its converted form set on the Data property. Empty if Data was not changed
 %	Error: error string when failed to convert EditData to appropriate value for Data
 % handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on selection change in TxRedStk_select.
+function TxRedStk_select_Callback(hObject, eventdata, handles)
+% hObject    handle to TxRedStk_select (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns TxRedStk_select contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from TxRedStk_select
+
+
+% --- Executes during object creation, after setting all properties.
+function TxRedStk_select_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to TxRedStk_select (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on selection change in YFPStk_select.
+function YFPStk_select_Callback(hObject, eventdata, handles)
+% hObject    handle to YFPStk_select (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns YFPStk_select contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from YFPStk_select
+
+
+% --- Executes during object creation, after setting all properties.
+function YFPStk_select_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to YFPStk_select (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
