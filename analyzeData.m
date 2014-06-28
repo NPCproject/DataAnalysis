@@ -1,6 +1,6 @@
-function [filteredData outlierData procData] = analyzeData(CortANames, varargin)
+function [filteredData outlierData procData] = analyzeData(pathname, matname, CortANames, varargin)
 
-% [filteredData outlierData procData] = analyzeData(CortANames, varargin)
+% [FILTEREDDATA OUTLIERDATA PROCDATA] = ANALYZEDATA(PATHNAME, MATNAME, CORTANAMES, VARARGIN)
 % 
 % This function will take in a number of dataframes from different
 % wells, and filter out the outliers.  
@@ -18,7 +18,7 @@ end
 
 alldata = [varargin{1:end}];
 names = fieldnames(alldata);
-cellData = cellfun(@(f) {horzcat(alldata.(f))},names);his
+cellData = cellfun(@(f) {horzcat(alldata.(f))},names);
 alldata = cell2struct(cellData,names);
 
 %% filter outliers
@@ -40,7 +40,10 @@ procData.percUnst_d6 = procData.numUnst_d6./procData.numNPCs_d6;
 procData.numDbl_d6 = filteredData.numDbl_d6;
 procData.percDbl_d6 = procData.numDbl_d6./procData.numNPCs_d6;
 
-procData.numCortA_d6 = filteredData.numCortA_d6;
+for i=1:length(CortANames)
+    eval(['procData.num' CortANames{i} '_d6 = filteredData.num' CortANames{i} '_d6;']);
+end
+
 
 %% categorize d0 NPC/Astr condition
 
@@ -56,7 +59,7 @@ end
 procData.labels = cell(1,numPatterns);
 
 for i=1:numPatterns
-    label = [num2str(d0data(1,i)) 'NPC_' num2str(d0data(2,i)) 'CortA'];
+    label = [num2str(d0data(1,i)) 'NPC_' num2str(d0data(2,i)) CortANames{1}];
     procData.labels{i}=label;
 end
 
@@ -70,10 +73,14 @@ procData.ratio = filteredData.numNPCs_d0./eval(['filteredData.num' CortANames{1}
 %% characterize proliferation: total NPCs at d6/NPC_d0
 
 procData.prolif = filteredData.numNPCs_d6./filteredData.numNPCs_d0;
-procData.CortAprolif = filteredData.numCortA_d6./filteredData.numCortA_d0;
+
+for i=1:length(CortANames)
+    
+    eval(['procData.' CortANames{i} 'prolif = filteredData.num' CortANames{i} '_d6./filteredData.num' CortANames{i} '_d0;']);
+end
 
 
-%% categorize patterns as [0: none] [1: Tuj1] [2: all GFAP] [3: mixed]
+%% categorize patterns as [0: none] [1: all Tuj1] [2: all GFAP] [3: mixed]
 
 procData.category = zeros(1,numPatterns);
 
@@ -111,8 +118,9 @@ for i = 1:numPatterns
     
 end
 
-%% 
+%% Save procdata, outlierdata, and filteredData
 
+save([matname(1:4), '_procData.mat'], 'procData', 'outlierData', 'filteredData');
 
 
 
