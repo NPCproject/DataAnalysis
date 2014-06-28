@@ -18,21 +18,21 @@ function [filteredData outlierData] = filterOutliers(dataFrame, CortANames)
 %            one, but possibly two types of CortA
 % filteredData (struct): same fields, just with outliers removed
 % outlierData (struct): add these fields: 
-%  outlier_unQuant_Ind: indices of patterns with 99 in numTuj1_d6
-%  outlier_unQuant_num:  
-%  outlier_unQuant_perc: 
-%  outlier_NPCLoss_Ind: indices of patterns that lose NPCs by d6
-%  outlier_NPCLoss_num: 
-%  outlier_NPCLoss_perc:
-%  outlier_CortALoss_Ind: indices of patterns that lose all CortA by d6
-%  outlier_CortALoss_num: 
-%  outlier_CortALoss_perc: 
-%  outlier_NPCGain_Ind: indices of patterns that gain NPCs by d6(0 at d0)
-%  outlier_NPCGain_num:     
-%  outlier_NPCGain_perc:
-%  outlier_CortAGain_Ind: indices of patterns gain CortA by d6(0 at d0)
-%  outlier_CortAGain_num:
-%  outlier_CortAGain_perc: 
+%  unQuant_Ind: indices of patterns with 99 in numTuj1_d6
+%  unQuant_num:  
+%  unQuant_perc: 
+%  NPCLoss_Ind: indices of patterns that lose NPCs by d6
+%  NPCLoss_num: 
+%  NPCLoss_perc:
+%  CortALoss_Ind: indices of patterns that lose all CortA by d6
+%  CortALoss_num: 
+%  CortALoss_perc: 
+%  NPCGain_Ind: indices of patterns that gain NPCs by d6(0 at d0)
+%  NPCGain_num:     
+%  NPCGain_perc:
+%  CortAGain_Ind: indices of patterns gain CortA by d6(0 at d0)
+%  CortAGain_num:
+%  CortAGain_perc: 
 
 
 totalnum = length(dataFrame.numTuj1_d6);
@@ -40,7 +40,7 @@ numCortAs = length(CortANames);
 
 %% Find the following indices: 
 
-unQuantIndices = find(dataFrame.numTuj1_d6==99);
+unQuantIndices = find(dataFrame.numTuj1_d6==99|dataFrame.numNPCs_d0==00); % also if the day 0
 
 d0NPCs = find(dataFrame.numNPCs_d0>0);
 d0ZeroNPCs = find(dataFrame.numNPCs_d0==0);
@@ -60,9 +60,9 @@ end
 
 %% Criteria 1: user says the pattern is unquantifiable
 
-outlierData.outlier_unQuant_Ind = unQuantIndices;
-outlierData.outlier_unQuant_num = length(outlierData.outlier_unQuant_Ind);
-outlierData.outlier_unQuant_perc = outlierData.outlier_unQuant_num/totalnum;
+outlierData.unQuant_Ind = unQuantIndices;
+outlierData.unQuant_num = length(outlierData.unQuant_Ind);
+outlierData.unQuant_perc = outlierData.unQuant_num/totalnum;
 
 
 %% Criteria 2: no NPCs and no CortA at day 0 -> no cells
@@ -75,19 +75,18 @@ for i=1:numCortAs
 
 end
 
-outlierData.outlier_NoCell_Ind = setdiff(noCellIndices, unQuantIndices); % remove all cases in which Criteria 1 was already applied
-outlierData.outlier_NoCell_num = length(outlierData.outlier_NoCell_Ind);
-outlierData.outlier_NoCell_perc = outlierData.outlier_NoCell_Ind/totalnum;
-
+outlierData.NoCell_Ind = setdiff(noCellIndices, unQuantIndices); % remove all cases in which Criteria 1 was already applied
+outlierData.NoCell_num = length(outlierData.NoCell_Ind);
+outlierData.NoCell_perc = outlierData.NoCell_Ind/totalnum;
 
 
 %% Criteria 3: no NPCs at day 6 -> NPC loss
 
 NPCLossIndices = intersect(d0NPCs,d6ZeroNPCs);
 
-outlierData.outlier_NPCLoss_Ind = setdiff(NPCLossIndices, unQuantIndices); % remove all the cases in which Criteria 1 was already applied
-outlierData.outlier_NPCLoss_num = length(outlierData.outlier_NPCLoss_Ind);
-outlierData.outlier_NPCLoss_perc = outlierData.outlier_NPCLoss_num/totalnum;
+outlierData.NPCLoss_Ind = setdiff(NPCLossIndices, unQuantIndices); % remove all the cases in which Criteria 1 was already applied
+outlierData.NPCLoss_num = length(outlierData.NPCLoss_Ind);
+outlierData.NPCLoss_perc = outlierData.NPCLoss_num/totalnum;
 
 
 %% Criteria 4: no CortA at day 6 -> CortA loss 
@@ -101,9 +100,9 @@ for i=1:numCortAs
 
 end
 
-outlierData.outlier_CortALoss_Ind = setdiff(CortALossIndices, unQuantIndices); % remove all the cases in which Criteria 1 was already applied
-outlierData.outlier_CortALoss_num = length(outlierData.outlier_CortALoss_Ind);
-outlierData.outlier_CortALoss_perc = outlierData.outlier_CortALoss_num/totalnum;
+outlierData.CortALoss_Ind = setdiff(CortALossIndices, unQuantIndices); % remove all the cases in which Criteria 1 was already applied
+outlierData.CortALoss_num = length(outlierData.CortALoss_Ind);
+outlierData.CortALoss_perc = outlierData.CortALoss_num/totalnum;
 
 
 %%%%%
@@ -117,9 +116,9 @@ outlierData.outlier_CortALoss_perc = outlierData.outlier_CortALoss_num/totalnum;
 
 NPCGainIndices = intersect(d0ZeroNPCs,d6NPCs);
 
-outlierData.outlier_NPCGain_Ind = setdiff(NPCGainIndices, unQuantIndices); % remove all the cases in which Criteria 1 was already applied
-outlierData.outlier_NPCGain_num = length(outlierData.outlier_NPCGain_Ind);
-outlierData.outlier_NPCGain_perc = outlierData.outlier_NPCGain_num/totalnum;
+outlierData.NPCGain_Ind = setdiff(NPCGainIndices, unQuantIndices); % remove all the cases in which Criteria 1 was already applied
+outlierData.NPCGain_num = length(outlierData.NPCGain_Ind);
+outlierData.NPCGain_perc = outlierData.NPCGain_num/totalnum;
 
 
 %% Criteria 6: no CortA at day 0, but CortA at day 6 -> CortA gain 
@@ -133,9 +132,9 @@ for i=numCortAs
     
 end
 
-outlierData.outlier_CortAGain_Ind = setdiff(CortAGainIndices, unQuantIndices); % remove all the cases in which Criteria 1 was already applied
-outlierData.outlier_CortAGain_num = length(outlierData.outlier_CortAGain_Ind);
-outlierData.outlier_CortAGain_perc = outlierData.outlier_CortAGain_num/totalnum;
+outlierData.CortAGain_Ind = setdiff(CortAGainIndices, unQuantIndices); % remove all the cases in which Criteria 1 was already applied
+outlierData.CortAGain_num = length(outlierData.CortAGain_Ind);
+outlierData.CortAGain_perc = outlierData.CortAGain_num/totalnum;
 
 %% Combine all indices together
 
