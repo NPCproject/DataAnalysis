@@ -11,7 +11,7 @@ n = length(varargin);
 
 procData.wellNames = cell(1,n);
 for i = 1:n
-    procData.wellNames{i}=inputname(i+1);
+    procData.wellNames{i}=inputname(i+3);
 end
 
 %% Concatenate all data
@@ -120,7 +120,7 @@ end
 
 %% Save procdata, outlierdata, and filteredData
 
-save([matname(1:4), '_procData.mat'], 'procData', 'outlierData', 'filteredData');
+save(matname, 'procData', 'outlierData', 'filteredData');
 
 
 
