@@ -1,6 +1,6 @@
-function [filteredData outlierData procData] = analyzeData(pathname, matname, CortANames, varargin)
+function [filteredData outlierData procData] = analyzeData(pathname, procmatname, CortANames, varargin)
 
-% [FILTEREDDATA OUTLIERDATA PROCDATA] = ANALYZEDATA(PATHNAME, MATNAME, CORTANAMES, VARARGIN)
+% [FILTEREDDATA OUTLIERDATA PROCDATA] = ANALYZEDATA(PATHNAME, PROCMATNAME, CORTANAMES, VARARGIN)
 % 
 % This function will take in a number of dataframes from different
 % wells, and filter out the outliers.  
@@ -120,7 +120,7 @@ end
 
 %% Save procdata, outlierdata, and filteredData
 
-save(matname, 'procData', 'outlierData', 'filteredData');
+save([pathname procmatname], 'procData', 'outlierData', 'filteredData');
 
 
 
