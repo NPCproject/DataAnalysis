@@ -12,24 +12,22 @@ function sumNPCs(matname, pathname, wellnumber)
 %
 
 load([pathname, matname]);
-
 currWellName = [matname(1:end-4) '_w' num2str(wellnumber) '_data'];
 currWell = eval(currWellName);
 
+% get all field names and d6 NPC names
 allfieldnames = fieldnames(currWell);
 d6NPCfieldnames = {'numTuj1_d6', 'numGFAP_d6', 'numDbl_d6', 'numUnst_d6'};
-
 currLength = length(getfield(currWell, d6NPCfieldnames{1}));
 
+% get all d6 NPC data into matrix and sum it across the columns
 allvectors = cellfun(@(x) getfield(currWell, x), d6NPCfieldnames, 'UniformOutput', false);
 allvectors = [allvectors{1:4}];
-
 reshapedMatrix = reshape(allvectors, currLength,4)';
 totalNPCs = sum(reshapedMatrix,1);
 currWell.numNPCs_d6 = totalNPCs;
 
 % Extend all other fields to maximum length
-
 emptylist = structfun(@(x) isequal(mean(x),0), currWell); % find all frames where field = 0 or list of 0s
 emptyindices = emptylist.*[1:length(emptylist)]';
 emptyindices(emptyindices==0)=[];
@@ -39,6 +37,11 @@ for i=1:length(emptyindices)
     currWell = setfield(currWell, allfieldnames{emptyindices(i)}, zeros(1,currLength));
     
 end
+
+% Store original indexes into .origIndex field
+origIndex = 1:currLength;
+currWell = setfield(currWell, 'origIndex', origIndex);
+
 
 % Rename currWell to original well name
 eval([currWellName ' = currWell;']);
