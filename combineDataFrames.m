@@ -26,6 +26,10 @@ eval([d0matslide '_w2_data_d0=' d0matslide '_w2_data;']);
 eval([d0matslide '_w3_data_d0=' d0matslide '_w3_data;']);
 eval([d0matslide '_w4_data_d0=' d0matslide '_w4_data;']);
 
+% then load all the d6 data and retain the name
+
+load([pathname d6matname]);
+
 % go through all d0 fields and set them equal to d0 fields in d0.mat file
 
 allfields=fieldnames(eval([d0matslide '_w1_data_d0']));
