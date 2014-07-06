@@ -30,8 +30,8 @@ eval([d0matslide '_w4_data_d0=' d0matslide '_w4_data;']);
 
 allfields=fieldnames(eval([d0matslide '_w1_data_d0']));
 
-indices=strfind(allfields,'d0'); %find all indices for 0 fields
-indices = cellfun('isempty',x);
+indices = strfind(allfields,'d0'); %find all indices for 0 fields
+indices = cellfun('isempty',indices);
 indices = ~indices; % creates a vector with 0 if the field has no 'd0' in it
 
 for i = 1:length(indices)
@@ -41,13 +41,9 @@ for i = 1:length(indices)
         currfieldname=allfields{i};
         
         eval([d0matslide '_w1_data.' currfieldname '=' d0matslide '_w1_data_d0.' currfieldname ';']);
-        
         eval([d0matslide '_w2_data.' currfieldname '=' d0matslide '_w2_data_d0.' currfieldname ';']);
-        
         eval([d0matslide '_w3_data.' currfieldname '=' d0matslide '_w3_data_d0.' currfieldname ';']);
-        
         eval([d0matslide '_w4_data.' currfieldname '=' d0matslide '_w4_data_d0.' currfieldname ';']);
-        
         
     end
 end
