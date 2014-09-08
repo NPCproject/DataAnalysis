@@ -6,7 +6,7 @@ function nameFields = parsefilename (filename)
 % 
 % sl#_d#_w#_ch.tif
 %
-% slide #_ day # _ well # _ ch
+% slide #_ well # _ day # _ ch
 %
 % This function will return a cell array, nameFields, with the strings
 % between the _ delimiters. 
@@ -14,8 +14,8 @@ function nameFields = parsefilename (filename)
 % For example, nameFields = parsefilename('sl22_d0_w1_TL.tif') will return
 %
 % nameFields{1} = 'sl22'
-% nameFields{2} = 'd0'
-% nameFields{3} = 'w1'
+% nameFields{2} = 'w1'
+% nameFields{3} = 'd0'
 % nameFields{4} = 'TL'
 
 
