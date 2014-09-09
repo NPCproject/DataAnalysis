@@ -544,7 +544,7 @@ end
 if get(handles.checkBlue, 'Value')
     Bchannel = handles.Bimstack{n};
 else
-    Bchannel = 0 * Bchannel;
+    Bchannel = 0 * handles.Bimstack{n};
 end
 
 

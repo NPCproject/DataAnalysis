@@ -1,6 +1,6 @@
-function [filteredData outlierData procData] = analyzeData(pathname, procmatname, CortANames, varargin)
+function [outlierData procData] = analyzeData(pathname, procmatname, CortANames, varargin)
 
-% [FILTEREDDATA OUTLIERDATA PROCDATA] = ANALYZEDATA(PATHNAME, PROCMATNAME, CORTANAMES, VARARGIN)
+% [OUTLIERDATA PROCDATA] = ANALYZEDATA(PATHNAME, PROCMATNAME, CORTANAMES, VARARGIN)
 % 
 % This function will take in a number of dataframes from different
 % wells, and filter out the outliers.  
@@ -21,28 +21,10 @@ names = fieldnames(alldata);
 cellData = cellfun(@(f) {horzcat(alldata.(f))},names);
 alldata = cell2struct(cellData,names);
 
+
 %% filter outliers
 
 [filteredData outlierData] = filterOutliers(alldata, CortANames);
-
-%% keep all d6 data
-
-procData.numNPCs_d6 = filteredData.numNPCs_d6;
-procData.numTuj1_d6 = filteredData.numTuj1_d6;
-procData.percTuj1_d6 = procData.numTuj1_d6./procData.numNPCs_d6;
-
-procData.numGFAP_d6 = filteredData.numGFAP_d6;
-procData.percGFAP_d6 = procData.numGFAP_d6./procData.numNPCs_d6;
-
-procData.numUnst_d6 = filteredData.numUnst_d6;
-procData.percUnst_d6 = procData.numUnst_d6./procData.numNPCs_d6;
-
-procData.numDbl_d6 = filteredData.numDbl_d6;
-procData.percDbl_d6 = procData.numDbl_d6./procData.numNPCs_d6;
-
-for i=1:length(CortANames)
-    eval(['procData.num' CortANames{i} '_d6 = filteredData.num' CortANames{i} '_d6;']);
-end
 
 
 %% categorize d0 NPC/Astr condition
@@ -59,8 +41,14 @@ end
 procData.labels = cell(1,numPatterns);
 
 for i=1:numPatterns
-    label = [num2str(d0data(1,i)) 'NPC_' num2str(d0data(2,i)) CortANames{1}];
-    procData.labels{i}=label;
+    
+    label=[num2str(d0data(1,i)) 'NPC'];
+    
+    for j=1:length(CortANames)
+        
+        label= [label '_' num2str(d0data(1+j, i)) CortANames{j}];
+        procData.labels{i}=label;
+    end
 end
 
 allCategories = unique(procData.labels);
@@ -118,9 +106,12 @@ for i = 1:numPatterns
     
 end
 
+procData=catstruct(procData, filteredData);
+
+
 %% Save procdata, outlierdata, and filteredData
 
-save([pathname procmatname], 'procData', 'outlierData', 'filteredData');
+save([pathname procmatname], 'procData', 'outlierData');
 
 
 

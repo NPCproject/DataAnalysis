@@ -8,7 +8,7 @@ function sumNPCs(matname, pathname, wellnumber)
 % 
 % matname (string): name of the mat file
 % pathname (string): path
-% wellnumber(array): array of well numbers (i.e. 1:4)
+% wellnumber(number): number of well 
 %
 
 load([pathname, matname]);

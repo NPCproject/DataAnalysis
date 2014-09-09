@@ -40,7 +40,7 @@ numCortAs = length(CortANames);
 
 %% Find the following indices: 
 
-unQuantIndices = find(dataFrame.numTuj1_d6==99|dataFrame.numNPCs_d0==00); % also if the day 0
+unQuantIndices = find(dataFrame.numTuj1_d6==99|dataFrame.numNPCs_d0==99); % also if the day 0
 
 d0NPCs = find(dataFrame.numNPCs_d0>0);
 d0ZeroNPCs = find(dataFrame.numNPCs_d0==0);
@@ -55,7 +55,6 @@ for i = 1:length(CortANames)
     d6ZeroCortA{i} = eval(['find(dataFrame.num' CortANames{i} '_d6==0)']);
 
 end
-
 
 
 %% Criteria 1: user says the pattern is unquantifiable
@@ -148,7 +147,7 @@ for i = 1:length(names)
     
     currVector = eval(['dataFrame.' names{i}]);
     
-    if any(currVector) && (max(filterOutIndices)<=totalnum) % requires currVector to at least have some nonzero values (i.e. not just 0's concatenated) 
+    if (max(filterOutIndices)<=totalnum) % requires currVector to at least have some nonzero values (i.e. not just 0's concatenated) 
     
         currVector(filterOutIndices)=[]; % remove all elements at these indices
         eval(['dataFrame.' names{i} ' = currVector']);
